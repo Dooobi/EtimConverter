@@ -98,5 +98,11 @@
     <Folder Include="UserControls\" />
     <Folder Include="ViewModels\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EtimDatasourceReader\EtimDatasourceReader.csproj">
+      <Project>{4f42928e-86eb-4d3c-95d8-c2180b9df23b}</Project>
+      <Name>EtimDatasourceReader</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

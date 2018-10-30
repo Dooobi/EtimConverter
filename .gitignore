@@ -1,3 +1,11 @@
 .vs
 EtimConverter/bin
 EtimConverter/obj
+BmecatDatasourceReader/bin
+BmecatDatasourceReader/obj
+ConsoleTest/bin
+ConsoleTest/obj
+DbAccessor/bin
+DbAccessor/obj
+EtimDatasourceReader/bin
+EtimDatasourceReader/obj
