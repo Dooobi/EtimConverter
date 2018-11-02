@@ -46,7 +46,27 @@ namespace BmecatDatasourceReader
             return featuresWithTwoValues;
         }
 
-        public Dictionary<string, List<Product>> GetProductsGroupedByParent()
+        public Dictionary<string, string> GetProductGroupNamesWithKeywords()
+        {
+            Dictionary<string, string> groupNameWithKeyword = new Dictionary<string, string>();
+
+            foreach (Product product in Products)
+            {
+                if (!groupNameWithKeyword.ContainsKey(product.DescriptionShort))
+                {
+                    groupNameWithKeyword[product.DescriptionShort] = product.ShortestKeyword;
+                    continue;
+                }
+                if (groupNameWithKeyword[product.DescriptionShort] != product.ShortestKeyword)
+                {
+                    Console.WriteLine("Grouping conflict for Name '" + product.DescriptionShort + "' and keyword '" + product.ShortestKeyword + "' (old keyword: '" + groupNameWithKeyword[product.DescriptionShort] + "')");
+                }
+            }
+
+            return groupNameWithKeyword;
+        }
+
+        public Dictionary<string, List<Product>> GetProductsGroupedByParentName()
         {
             if (productsGroupedByParent == null)
             {
@@ -59,6 +79,44 @@ namespace BmecatDatasourceReader
                         productsGroupedByParent[product.DescriptionShort] = new List<Product>();
                     }
                     productsGroupedByParent[product.DescriptionShort].Add(product);
+                }
+            }
+            return productsGroupedByParent;
+        }
+
+        public Dictionary<string, List<Product>> GetProductsGroupedByParentNameAndDescription()
+        {
+            if (productsGroupedByParent == null)
+            {
+                productsGroupedByParent = new Dictionary<string, List<Product>>();
+
+                foreach (Product product in Products)
+                {
+                    string key = product.DescriptionShort + product.DescriptionLong;
+
+                    if (!productsGroupedByParent.ContainsKey(key))
+                    {
+                        productsGroupedByParent[key] = new List<Product>();
+                    }
+                    productsGroupedByParent[key].Add(product);
+                }
+            }
+            return productsGroupedByParent;
+        }
+
+        public Dictionary<string, List<Product>> GetProductsGroupedByParentKeyword()
+        {
+            if (productsGroupedByParent == null)
+            {
+                productsGroupedByParent = new Dictionary<string, List<Product>>();
+
+                foreach (Product product in Products)
+                {
+                    if (!productsGroupedByParent.ContainsKey(product.ShortestKeyword))
+                    {
+                        productsGroupedByParent[product.ShortestKeyword] = new List<Product>();
+                    }
+                    productsGroupedByParent[product.ShortestKeyword].Add(product);
                 }
             }
             return productsGroupedByParent;
@@ -116,9 +174,10 @@ namespace BmecatDatasourceReader
                 {
                     ProductFeature currentProductFeature = featureMatrixColumn.Value;
 
-                    if (currentProductFeature == null
-                        || currentProductFeature.Value1 != firstFoundProductFeature.Value1
-                        || currentProductFeature.Value2 != firstFoundProductFeature.Value2)
+                    //if (currentProductFeature == null
+                    //    || currentProductFeature.Value1 != firstFoundProductFeature.Value1
+                    //    || currentProductFeature.Value2 != firstFoundProductFeature.Value2)
+                    if (!Equals(currentProductFeature, firstFoundProductFeature))
                     {
                         differentFeatures.Add(currentProductFeature.EtimFeature);
                         break;
@@ -140,7 +199,7 @@ namespace BmecatDatasourceReader
             {
                 allDifferingFeaturesWithValues = new Dictionary<EtimFeature, List<ProductFeature>>();
 
-                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetProductsGroupedByParent())
+                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetProductsGroupedByParentKeyword())
                 {
                     Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = GetFeatureMatrixForGroupedProducts(groupedProducts.Value);
                     List<EtimFeature> featuresWithDifferentValues = GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
@@ -179,7 +238,7 @@ namespace BmecatDatasourceReader
         {
             foreach (ProductFeature featureInList in features)
             {
-                if (Object.Equals(feature, featureInList))
+                if (Equals(feature, featureInList))
                 {
                     return true;
                 }
@@ -239,6 +298,8 @@ namespace BmecatDatasourceReader
             {
                 XmlNodeList xmlProducts = xmlDoc.DocumentElement.SelectNodes("/BMECAT/T_NEW_CATALOG/PRODUCT");
 
+                int maxCount = xmlProducts.Count;
+                int currentCount = 0;
                 foreach (XmlNode xmlProduct in xmlProducts)
                 {
                     Product product = new Product();
@@ -272,6 +333,21 @@ namespace BmecatDatasourceReader
                     ParseProductLogisticDetails(product, xmlProduct);
 
                     BmecatDatasource.Products.Add(product);
+
+                    currentCount++;
+
+                    if (currentCount == (int)(maxCount * 0.25))
+                    {
+                        Console.WriteLine("25%..");
+                    }
+                    if (currentCount == (int)(maxCount * 0.5))
+                    {
+                        Console.WriteLine("50%..");
+                    }
+                    if (currentCount == (int)(maxCount * 0.75))
+                    {
+                        Console.WriteLine("75%..");
+                    }
                 }
             }
 
@@ -300,6 +376,11 @@ namespace BmecatDatasourceReader
                 foreach (XmlNode xmlKeyword in xmlKeywords)
                 {
                     product.Keywords.Add(xmlKeyword.InnerText);
+                    if (product.ShortestKeyword == null
+                        || xmlKeyword.InnerText.Length < product.ShortestKeyword.Length)
+                    {
+                        product.ShortestKeyword = xmlKeyword.InnerText;
+                    }
                 }
             }
 

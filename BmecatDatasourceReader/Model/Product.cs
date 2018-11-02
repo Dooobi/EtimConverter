@@ -29,6 +29,7 @@ namespace BmecatDatasourceReader.Model
         public string SpecialTreatmentClass { get; set; }
         public string SpecialTreatmentClassType { get; set; }
         public List<string> Keywords { get; set; }
+        public string ShortestKeyword { get; set; }
 
         // Product Features
         public string ReferenceFeatureSystemName { get; set; }

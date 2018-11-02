@@ -56,12 +56,17 @@
   <ItemGroup>
     <Compile Include="GambioDbAccessor.cs" />
     <Compile Include="GambioProperty.cs" />
+    <Compile Include="GambioPropertyValue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BmecatDatasourceReader\BmecatDatasourceReader.csproj">
+      <Project>{56540880-FD89-4F34-9394-FC2082344A17}</Project>
+      <Name>BmecatDatasourceReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EtimDatasourceReader\EtimDatasourceReader.csproj">
       <Project>{4f42928e-86eb-4d3c-95d8-c2180b9df23b}</Project>
       <Name>EtimDatasourceReader</Name>

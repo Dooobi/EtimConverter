@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace DbAccessor
 {
-    public class GambioProperty
+    public class GambioPropertyValue
     {
+        public long PropertyValueId { get; set; }
         public long PropertyId { get; set; }
         public string GermanName { get; set; }
-        public string GermanAdminName { get; set; }
         public string EnglishName { get; set; }
-        public string EnglishAdminName { get; set; }
     }
 }

@@ -33,9 +33,12 @@ namespace ConsoleTest
             Console.WriteLine();
 
             // Do diagnostics
+            int groups = 0;
+            int products = 0;
             StringBuilder bld = new StringBuilder();
-            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetProductsGroupedByParent())
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetProductsGroupedByParentKeyword())
             {
+                groups++;
                 List<EtimFeature> differingFeatures = bmecatDatasource.GetDifferingFeaturesFromGroupedProducts(groupedProducts.Value);
 
                 bld.Append(groupedProducts.Key).Append(": ");
@@ -54,11 +57,21 @@ namespace ConsoleTest
                 bld.AppendLine();
                 foreach (Product product in groupedProducts.Value)
                 {
+                    products++;
                     bld.Append("    ").AppendLine(product.SupplierPid);
                 }
             }
+            Console.WriteLine("Groups: " + groups);
+            Console.WriteLine("Products: " + products);
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "GroupedProducts.txt", bld.ToString());
 
+            // Datei für Klaus
+            bld = new StringBuilder();
+            foreach (KeyValuePair<string, string> groupedProducts in bmecatDatasource.GetProductGroupNamesWithKeywords())
+            {
+                bld.Append(groupedProducts.Value).Append("\t").Append(groupedProducts.Key).AppendLine("\t");
+            }
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "KlausKategorienUndVorzüge.csv", bld.ToString());
 
             Dictionary<EtimFeature, List<ProductFeature>> allDifferentFeaturesWithPossibleValues = bmecatDatasource.GetAllDifferingFeaturesWithPossibleValues();
             Console.WriteLine(allDifferentFeaturesWithPossibleValues.Keys.Count);
@@ -97,7 +110,7 @@ namespace ConsoleTest
             // Build csv file
             BuildCsv(bmecatDatasource);
 
-            //HandleDb(allDifferentFeatures[0]);
+            HandleDb(allDifferentFeaturesWithPossibleValues);
 
             Console.WriteLine("Finished.");
             Console.ReadLine();
@@ -123,21 +136,21 @@ namespace ConsoleTest
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvBuilder.Build());
         }
 
-        public static void HandleDb(EtimFeature feature)
+        public static void HandleDb(Dictionary<EtimFeature, List<ProductFeature>> featuresWithPossibleValues)
         {
             GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
 
             Console.WriteLine("Reading properties...");
-            List<GambioProperty> properties = dbAccessor.GetProperties();
+            //List<GambioProperty> properties = dbAccessor.GetProperties();
 
-            StringBuilder bld = new StringBuilder();
-            foreach (GambioProperty property in properties)
-            {
-                bld.AppendLine(property.GermanName + " [" + property.PropertyId + "]");
-            }
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "GambioProperties.txt", bld.ToString());
+            //StringBuilder bld = new StringBuilder();
+            //foreach (GambioProperty property in properties)
+            //{
+            //    bld.AppendLine(property.GermanName + " [" + property.PropertyId + "]");
+            //}
+            //File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "GambioProperties.txt", bld.ToString());
 
-            dbAccessor.InsertProperty(feature);
+            dbAccessor.InsertMissingPropertiesAndValues(featuresWithPossibleValues);
 
             Console.WriteLine("Done.");
         }
