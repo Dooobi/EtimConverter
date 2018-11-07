@@ -234,6 +234,16 @@ namespace BmecatDatasourceReader
             return allDifferingFeaturesWithValues;
         }
 
+        public List<EtimFeature> GetAllDifferingFeatures()
+        {
+            List<EtimFeature> allDifferingFeatures = new List<EtimFeature>();
+            foreach (EtimFeature feature in GetAllDifferingFeaturesWithPossibleValues().Keys)
+            {
+                allDifferingFeatures.Add(feature);
+            }
+            return allDifferingFeatures;
+        }
+
         private bool IsProductFeatureInList(ProductFeature feature, List<ProductFeature> features)
         {
             foreach (ProductFeature featureInList in features)

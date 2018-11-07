@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml.Linq;
 using static BmecatDatasourceReader.BmecatDatasource;
 
 namespace ConsoleTest
@@ -31,6 +32,8 @@ namespace ConsoleTest
             Console.WriteLine(bmecatDatasource.AllUsedEtimGroups.Count + " different EtimGroups");
             Console.WriteLine(bmecatDatasource.AllUsedEtimClasses.Count + " different EtimClasses");
             Console.WriteLine();
+
+            GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
 
             // Do diagnostics
             int groups = 0;
@@ -107,39 +110,43 @@ namespace ConsoleTest
             }
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "FeaturesWithTwoValues.txt", bld.ToString());
 
-            // Build csv file
-            BuildCsv(bmecatDatasource);
+            // Handle DB
+            HandleDb(dbAccessor, allDifferentFeaturesWithPossibleValues);
 
-            HandleDb(allDifferentFeaturesWithPossibleValues);
+            // Build xml file (debugging)
+            BuildXml(bmecatDatasource);
+
+            // Build csv file
+            BuildCsv(bmecatDatasource, dbAccessor);
 
             Console.WriteLine("Finished.");
             Console.ReadLine();
         }
 
-        public static void BuildCsv(BmecatDatasource bmecatDatasource)
+        public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
             CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
 
-            for (int i = 0; i < bmecatDatasource.Products.Count; i++)
-            {
-                //if (i > 0)
-                //{
-                //    break;
-                //}
-                Product product = bmecatDatasource.Products[i];
+            csvBuilder.AddData(bmecatDatasource);
 
-                csvBuilder.AddLine(product);
-            }
-
+            String csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
+            
             DateTime now = DateTime.Now;
             string filename = "Generated--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvBuilder.Build());
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvData);
         }
 
-        public static void HandleDb(Dictionary<EtimFeature, List<ProductFeature>> featuresWithPossibleValues)
+        public static void BuildXml(BmecatDatasource bmecatDatasource)
         {
-            GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
+            XmlCreator xmlCreator = new XmlCreator(bmecatDatasource);
 
+            XElement root = xmlCreator.BuildXml();
+
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug.xml", root.ToString());
+        }
+
+        public static void HandleDb(GambioDbAccessor dbAccessor, Dictionary<EtimFeature, List<ProductFeature>> featuresWithPossibleValues)
+        {
             Console.WriteLine("Reading properties...");
             //List<GambioProperty> properties = dbAccessor.GetProperties();
 

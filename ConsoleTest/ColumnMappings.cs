@@ -14,7 +14,7 @@ namespace ConsoleTest
             List<Column> columns = new List<Column>();
             columns.Add(new Column("XTSOL", (product) => "XTSOL"));
             columns.Add(new Column("p_id", (product) => ""));
-            columns.Add(new Column("p_model", (product) => product.SupplierPid));
+            columns.Add(new Column("p_model", (product) => product.ShortestKeyword));
             columns.Add(new Column("p_stock", (product) => "1"));
             columns.Add(new Column("p_sorting", (product) => "0"));
             columns.Add(new Column("p_startpage", (product) => "0"));
@@ -24,21 +24,23 @@ namespace ConsoleTest
             columns.Add(new Column("p_opttpl", (product) => "product_options_dropdown.html"));
             columns.Add(new Column("p_manufacturer", (product) => ""));
             columns.Add(new Column("p_fsk18", (product) => "0"));
-            columns.Add(new Column("p_priceNoTax", (product) => 
-            {
-                if (product.Prices.ContainsKey("net_list"))
-                {
-                    return product.Prices["net_list"].PriceAmount;
-                }
-                return "9999.99";
-            }));
+            columns.Add(new Column("p_priceNoTax", (product) => ""));
+            //columns.Add(new Column("p_priceNoTax", (product) => 
+            //{
+            //    if (product.Prices.ContainsKey("net_list"))
+            //    {
+            //        return product.Prices["net_list"].PriceAmount;
+            //    }
+            //    return "9999.99";
+            //}));
             columns.Add(new Column("p_priceNoTax.1", (product) => ""));
             columns.Add(new Column("p_priceNoTax.2", (product) => ""));
             columns.Add(new Column("p_priceNoTax.3", (product) => ""));
             columns.Add(new Column("p_tax", (product) => "0"));
             columns.Add(new Column("p_status", (product) => "1"));
             columns.Add(new Column("p_weight", (product) => "0"));
-            columns.Add(new Column("p_ean", (product) => product.InternationalPid));
+            columns.Add(new Column("p_ean", (product) => ""));
+            //columns.Add(new Column("p_ean", (product) => product.InternationalPid));
             columns.Add(new Column("code_isbn", (product) => ""));
             columns.Add(new Column("code_upc", (product) => ""));
             columns.Add(new Column("code_mpn", (product) => ""));
@@ -64,42 +66,46 @@ namespace ConsoleTest
             columns.Add(new Column("p_vpe", (product) => "0"));
             columns.Add(new Column("p_vpe_status", (product) => "0"));
             columns.Add(new Column("p_vpe_value", (product) => "0"));
-            columns.Add(new Column("p_image.1", (product) =>
-            {
-                if (product.Mimes.ContainsKey("image/jpeg")
-                    && product.Mimes["image/jpeg"].Count > 1)
-                {
-                    return product.Mimes["image/jpeg"][1].Source;
-                }
-                return "";
-            }));
-            columns.Add(new Column("p_image.2", (product) =>
-            {
-                if (product.Mimes.ContainsKey("image/jpeg")
-                    && product.Mimes["image/jpeg"].Count > 2)
-                {
-                    return product.Mimes["image/jpeg"][2].Source;
-                }
-                return "";
-            }));
-            columns.Add(new Column("p_image.3", (product) =>
-            {
-                if (product.Mimes.ContainsKey("image/jpeg")
-                    && product.Mimes["image/jpeg"].Count > 3)
-                {
-                    return product.Mimes["image/jpeg"][3].Source;
-                }
-                return "";
-            }));
-            columns.Add(new Column("p_image", (product) =>
-            {
-                if (product.Mimes.ContainsKey("image/jpeg")
-                    && product.Mimes["image/jpeg"].Count > 0)
-                {
-                    return product.Mimes["image/jpeg"][0].Source;
-                }
-                return "";
-            }));
+            columns.Add(new Column("p_image.1", (product) => ""));
+            columns.Add(new Column("p_image.2", (product) => ""));
+            columns.Add(new Column("p_image.3", (product) => ""));
+            columns.Add(new Column("p_image", (product) => ""));
+            //columns.Add(new Column("p_image.1", (product) =>
+            //{
+            //    if (product.Mimes.ContainsKey("image/jpeg")
+            //        && product.Mimes["image/jpeg"].Count > 1)
+            //    {
+            //        return product.Mimes["image/jpeg"][1].Source;
+            //    }
+            //    return "";
+            //}));
+            //columns.Add(new Column("p_image.2", (product) =>
+            //{
+            //    if (product.Mimes.ContainsKey("image/jpeg")
+            //        && product.Mimes["image/jpeg"].Count > 2)
+            //    {
+            //        return product.Mimes["image/jpeg"][2].Source;
+            //    }
+            //    return "";
+            //}));
+            //columns.Add(new Column("p_image.3", (product) =>
+            //{
+            //    if (product.Mimes.ContainsKey("image/jpeg")
+            //        && product.Mimes["image/jpeg"].Count > 3)
+            //    {
+            //        return product.Mimes["image/jpeg"][3].Source;
+            //    }
+            //    return "";
+            //}));
+            //columns.Add(new Column("p_image", (product) =>
+            //{
+            //    if (product.Mimes.ContainsKey("image/jpeg")
+            //        && product.Mimes["image/jpeg"].Count > 0)
+            //    {
+            //        return product.Mimes["image/jpeg"][0].Source;
+            //    }
+            //    return "";
+            //}));
             columns.Add(new Column("p_name.en", (product) => product.DescriptionShort));
             columns.Add(new Column("p_desc.en", (product) => product.DescriptionLong));
             columns.Add(new Column("p_shortdesc.en", (product) => ""));
@@ -176,6 +182,25 @@ namespace ConsoleTest
             columns.Add(new Column("gm_sitemap_entry", (product) => "0"));
             columns.Add(new Column("p_qty_unit_id", (product) => ""));
             columns.Add(new Column("p_type", (product) => "1"));
+            columns.Add(new Column("products_properties_combis_id", (product) => Convert.ToString(Settings.nextPropertiesId++)));
+            columns.Add(new Column("combi_sort_order", (product) => ""));
+            columns.Add(new Column("combi_model", (product) => product.SupplierPid));
+            columns.Add(new Column("combi_ean", (product) => ""));
+            columns.Add(new Column("combi_quantity", (product) => "1"));
+            columns.Add(new Column("combi_shipping_status_id", (product) => "1"));
+            columns.Add(new Column("combi_weight", (product) => ""));
+            columns.Add(new Column("combi_price", (product) =>
+            {
+                if (product.Prices.ContainsKey("net_list"))
+                {
+                    return product.Prices["net_list"].PriceAmount;
+                }
+                return "9999.99";
+            }));
+            columns.Add(new Column("combi_price_type", (product) => "fix"));
+            columns.Add(new Column("combi_image", (product) => ""));
+            columns.Add(new Column("combi_vpe_id", (product) => "0"));
+            columns.Add(new Column("combi_vpe_value", (product) => "0"));
 
             return columns;
         }

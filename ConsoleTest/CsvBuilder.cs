@@ -1,4 +1,7 @@
-﻿using BmecatDatasourceReader.Model;
+﻿using BmecatDatasourceReader;
+using BmecatDatasourceReader.Model;
+using DbAccessor;
+using EtimDatasourceReader;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -26,6 +29,55 @@ namespace ConsoleTest
             this.columnSeparator = columnSeparator;
         }
 
+        public void AddData(BmecatDatasource bmecatDatasource)
+        {
+            List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
+
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetProductsGroupedByParentKeyword())
+            {
+                if (groupedProducts.Key == "AL-1337")
+                {
+                    Console.Write("");
+                }
+
+                Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Value);
+                List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
+
+                foreach (Product product in groupedProducts.Value)
+                {
+                    for (int i = 0; i < columns.Count; i++)
+                    {
+                        Column column = columns[i];
+                        string value = column.DelegateGetValue(product);
+
+                        if (i != 0)
+                        {
+                            builder.Append(columnSeparator);
+                        }
+                        builder.Append(textSeparator + value + textSeparator);
+                    }
+
+                    // Append properties
+                    foreach (EtimFeature feature in allDifferingFeatures)
+                    {
+                        string value = "";
+                        if (differingFeaturesForGroup.Contains(feature))
+                        {
+                            Dictionary<Product, ProductFeature> productFeatures = featureMatrix[feature];
+                            ProductFeature productFeature = productFeatures[product];
+                            if (productFeature != null)
+                            {
+                                value = productFeature.ToPropertyValue();
+                            }
+                        }
+                        builder.Append(columnSeparator).Append(textSeparator + value + textSeparator);
+                    }
+
+                    builder.AppendLine();
+                }
+            }
+        }
+
         public void AddLine(Product product)
         {
             for (int i = 0; i < columns.Count; i++)
@@ -42,8 +94,11 @@ namespace ConsoleTest
             builder.AppendLine();
         }
 
-        public string Build()
+        public string Build(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
+            List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
+            List<GambioProperty> gambioProperties = gambioDbAccessor.GetProperties();
+
             StringBuilder headerBuilder = new StringBuilder();
             for (int i = 0; i < columns.Count; i++)
             {
@@ -55,6 +110,19 @@ namespace ConsoleTest
                 }
                 headerBuilder.Append(textSeparator + column.Name + textSeparator);
             }
+            foreach (EtimFeature etimFeature in allDifferingFeatures)
+            {
+                string germanPropertyName = etimFeature.Translations["de-DE"].Description;
+
+                GambioProperty gambioProperty = gambioProperties.Find(property => property.GermanName == germanPropertyName);
+                if (gambioProperty == null)
+                {
+                    Console.WriteLine("Für Feature '" + germanPropertyName + "' wurde keine Eigenschaft in der Gambio Datenbank gefunden.");
+                }
+
+                headerBuilder.Append(columnSeparator).Append(textSeparator).Append("Eigenschaft: ").Append(germanPropertyName).Append(".de [").Append(gambioProperty.PropertyId).Append("]").Append(textSeparator);
+            }
+
             headerBuilder.AppendLine();
 
             return headerBuilder.ToString() + builder.ToString();
