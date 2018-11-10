@@ -30,7 +30,7 @@ namespace ConsoleTest
 
         private void AddGroups(XElement root)
         {
-            Dictionary<string, List<Product>> groupedProducts = BmecatDatasource.GetProductsGroupedByParentKeyword();
+            Dictionary<string, List<Product>> groupedProducts = BmecatDatasource.GetGroupedProducts();
 
             XElement xGroups = new XElement("Groups");
             xGroups.SetAttributeValue("count", groupedProducts.Count);
@@ -45,7 +45,7 @@ namespace ConsoleTest
 
         private void AddGroup(XElement xGroups, KeyValuePair<string, List<Product>> group)
         {
-            List<EtimFeature> differingFeatures = BmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(BmecatDatasource.GetFeatureMatrixForGroupedProducts(group.Value));
+            List<EtimFeature> differingFeatures = BmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(BmecatDatasource.GetFeatureMatrixForGroupedProducts(group.Key, group.Value, true));
 
             XElement xGroup = new XElement("Group");
 

@@ -33,14 +33,15 @@ namespace ConsoleTest
         {
             List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
 
-            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetProductsGroupedByParentKeyword())
+            int groupId = 1;
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
             {
                 if (groupedProducts.Key == "AL-1337")
                 {
                     Console.Write("");
                 }
 
-                Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Value);
+                Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                 List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 
                 foreach (Product product in groupedProducts.Value)
@@ -48,7 +49,7 @@ namespace ConsoleTest
                     for (int i = 0; i < columns.Count; i++)
                     {
                         Column column = columns[i];
-                        string value = column.DelegateGetValue(product);
+                        string value = column.DelegateGetValue(groupId, groupedProducts, product);
 
                         if (i != 0)
                         {
@@ -75,23 +76,9 @@ namespace ConsoleTest
 
                     builder.AppendLine();
                 }
-            }
-        }
 
-        public void AddLine(Product product)
-        {
-            for (int i = 0; i < columns.Count; i++)
-            {
-                Column column = columns[i];
-                string value = column.DelegateGetValue(product);
-
-                if (i != 0)
-                {
-                    builder.Append(columnSeparator);
-                }
-                builder.Append(textSeparator + value + textSeparator);
+                groupId++;
             }
-            builder.AppendLine();
         }
 
         public string Build(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)

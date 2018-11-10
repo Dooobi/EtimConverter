@@ -14,6 +14,18 @@ namespace BmecatDatasourceReader.Model
             References = new Dictionary<string, List<ProductReference>>();
         }
 
+        public ProductFeature GetProductFeatureByEtimFeature(EtimFeature etimFeature)
+        {
+            foreach (ProductFeature feature in Features)
+            {
+                if (feature.EtimFeature == etimFeature)
+                {
+                    return feature;
+                }
+            }
+            return null;
+        }
+
         // Header
         public string Mode { get; set; }
         public string SupplierPid { get; set; }

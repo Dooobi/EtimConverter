@@ -25,7 +25,7 @@ namespace ConsoleTest
             Console.WriteLine();
 
             Console.WriteLine("Parsing Bmecat file...");
-            BmecatParser bmecatParser = new BmecatParser(etimDatasource);
+            BmecatParser bmecatParser = new BmecatParser(etimDatasource, GroupMode.NAME_AND_DESCRIPTION);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");
@@ -39,10 +39,10 @@ namespace ConsoleTest
             int groups = 0;
             int products = 0;
             StringBuilder bld = new StringBuilder();
-            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetProductsGroupedByParentKeyword())
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
             {
                 groups++;
-                List<EtimFeature> differingFeatures = bmecatDatasource.GetDifferingFeaturesFromGroupedProducts(groupedProducts.Value);
+                List<EtimFeature> differingFeatures = bmecatDatasource.GetDifferingFeaturesFromGroupedProducts(groupedProducts);
 
                 bld.Append(groupedProducts.Key).Append(": ");
                 
@@ -125,7 +125,8 @@ namespace ConsoleTest
 
         public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
-            CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
+            //CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
+            CsvBuilder csvBuilder = new CsvBuilder("", "\t");
 
             csvBuilder.AddData(bmecatDatasource);
 

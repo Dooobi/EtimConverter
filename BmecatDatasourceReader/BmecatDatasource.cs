@@ -7,6 +7,13 @@ using EtimDatasourceReader;
 
 namespace BmecatDatasourceReader
 {
+    public enum GroupMode
+    {
+        KEYWORD,
+        NAME,
+        NAME_AND_DESCRIPTION
+    }
+
     public class BmecatDatasource
     {
         public List<EtimFeature> AllUsedEtimFeatures { get; set; }
@@ -18,13 +25,20 @@ namespace BmecatDatasourceReader
         public List<Product> Products { get; set; }
 
         public Dictionary<string, List<Product>> productsGroupedByParent;
+        public Dictionary<string, Dictionary<EtimFeature, Dictionary<Product, ProductFeature>>> featureMatixByGroupKeys;
 
-        private BmecatDatasource()
+        public GroupMode GroupMode { get; set; }
+
+        private BmecatDatasource(GroupMode groupMode)
         {
             AllUsedEtimFeatures = new List<EtimFeature>();
             AllUsedEtimClasses = new List<EtimClass>();
             AllUsedEtimGroups = new List<EtimGroup>();
             Products = new List<Product>();
+
+            featureMatixByGroupKeys = new Dictionary<string, Dictionary<EtimFeature, Dictionary<Product, ProductFeature>>>();
+
+            GroupMode = groupMode;
         }
 
         public List<ProductFeature> GetDistinctFeaturesWithTwoValues()
@@ -66,7 +80,7 @@ namespace BmecatDatasourceReader
             return groupNameWithKeyword;
         }
 
-        public Dictionary<string, List<Product>> GetProductsGroupedByParentName()
+        public Dictionary<string, List<Product>> GetGroupedProducts()
         {
             if (productsGroupedByParent == null)
             {
@@ -74,56 +88,141 @@ namespace BmecatDatasourceReader
 
                 foreach (Product product in Products)
                 {
-                    if (!productsGroupedByParent.ContainsKey(product.DescriptionShort))
+                    string key;
+                    switch (GroupMode)
                     {
-                        productsGroupedByParent[product.DescriptionShort] = new List<Product>();
+                        case GroupMode.KEYWORD:
+                            key = product.ShortestKeyword;
+                            break;
+                        case GroupMode.NAME:
+                            key = product.DescriptionShort;
+                            break;
+                        case GroupMode.NAME_AND_DESCRIPTION:
+                            key = product.DescriptionShort + product.DescriptionLong;
+                            break;
+                        default:
+                            key = "NO_GROUP_MODE";
+                            break;
                     }
-                    productsGroupedByParent[product.DescriptionShort].Add(product);
-                }
-            }
-            return productsGroupedByParent;
-        }
 
-        public Dictionary<string, List<Product>> GetProductsGroupedByParentNameAndDescription()
-        {
-            if (productsGroupedByParent == null)
-            {
-                productsGroupedByParent = new Dictionary<string, List<Product>>();
-
-                foreach (Product product in Products)
-                {
-                    string key = product.DescriptionShort + product.DescriptionLong;
+                    if (product.SupplierPid.StartsWith("AL-1337"))
+                    {
+                        Console.Write("");
+                    }
 
                     if (!productsGroupedByParent.ContainsKey(key))
                     {
                         productsGroupedByParent[key] = new List<Product>();
                     }
-                    productsGroupedByParent[key].Add(product);
-                }
-            }
-            return productsGroupedByParent;
-        }
-
-        public Dictionary<string, List<Product>> GetProductsGroupedByParentKeyword()
-        {
-            if (productsGroupedByParent == null)
-            {
-                productsGroupedByParent = new Dictionary<string, List<Product>>();
-
-                foreach (Product product in Products)
-                {
-                    if (!productsGroupedByParent.ContainsKey(product.ShortestKeyword))
+                    if (IsFeatureCombinationUniqueInList(product, key, productsGroupedByParent[key]))
                     {
-                        productsGroupedByParent[product.ShortestKeyword] = new List<Product>();
+                        productsGroupedByParent[key].Add(product);
                     }
-                    productsGroupedByParent[product.ShortestKeyword].Add(product);
+                    else
+                    {
+                        Console.WriteLine(product.SupplierPid + ": Eigenschaften sind nicht eindeutig. Produkt wurde nicht hinzugefügt!");
+                    }
                 }
             }
             return productsGroupedByParent;
         }
 
-        public Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> GetFeatureMatrixForGroupedProducts(List<Product> groupedProducts)
+        public bool IsFeatureCombinationUniqueInList(Product product, string groupedProductsKey, List<Product> groupedProducts)
         {
+            if (groupedProducts.Count == 0)
+            {
+                return true;
+            }
+
+            // Get the FeatureMatrix with the new Product included but remove it from the group again afterwards
+            groupedProducts.Add(product);
+            Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = GetFeatureMatrixForGroupedProducts(groupedProductsKey, groupedProducts, false);
+            groupedProducts.Remove(product);
+            
+            // Get the ProductFeature for all existing EtimFeatures in this group
+            foreach (EtimFeature feature in featureMatrix.Keys)
+            {
+                ProductFeature productFeature = featureMatrix[feature][product];
+
+                // Compare the ProductFeature to the ProductFeatures of all the other Products in this group
+                foreach (Product productInList in groupedProducts)
+                {
+                    ProductFeature productFeatureInList = featureMatrix[feature][productInList];
+
+                    // The feature combination is unique if there is a difference
+                    if (!Equals(productFeature, productFeatureInList))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+        /*
+                public Dictionary<string, List<Product>> GetProductsGroupedByParentName()
+                {
+                    if (productsGroupedByParent == null)
+                    {
+                        productsGroupedByParent = new Dictionary<string, List<Product>>();
+
+                        foreach (Product product in Products)
+                        {
+                            if (!productsGroupedByParent.ContainsKey(product.DescriptionShort))
+                            {
+                                productsGroupedByParent[product.DescriptionShort] = new List<Product>();
+                            }
+                            productsGroupedByParent[product.DescriptionShort].Add(product);
+                        }
+                    }
+                    return productsGroupedByParent;
+                }
+
+                public Dictionary<string, List<Product>> GetProductsGroupedByParentNameAndDescription()
+                {
+                    if (productsGroupedByParent == null)
+                    {
+                        productsGroupedByParent = new Dictionary<string, List<Product>>();
+
+                        foreach (Product product in Products)
+                        {
+                            string key = product.DescriptionShort + product.DescriptionLong;
+
+                            if (!productsGroupedByParent.ContainsKey(key))
+                            {
+                                productsGroupedByParent[key] = new List<Product>();
+                            }
+                            productsGroupedByParent[key].Add(product);
+                        }
+                    }
+                    return productsGroupedByParent;
+                }
+
+                public Dictionary<string, List<Product>> GetProductsGroupedByParentKeyword()
+                {
+                    if (productsGroupedByParent == null)
+                    {
+                        productsGroupedByParent = new Dictionary<string, List<Product>>();
+
+                        foreach (Product product in Products)
+                        {
+                            if (!productsGroupedByParent.ContainsKey(product.ShortestKeyword))
+                            {
+                                productsGroupedByParent[product.ShortestKeyword] = new List<Product>();
+                            }
+                            productsGroupedByParent[product.ShortestKeyword].Add(product);
+                        }
+                    }
+                    return productsGroupedByParent;
+                }
+        */
+        public Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> GetFeatureMatrixForGroupedProducts(string groupedProductsKey, List<Product> groupedProducts, bool useCaching)
+        {
+            if (featureMatixByGroupKeys.ContainsKey(groupedProductsKey) && useCaching)
+            {
+                return featureMatixByGroupKeys[groupedProductsKey];
+            }
+
             Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = new Dictionary<EtimFeature, Dictionary<Product, ProductFeature>>();
 
             foreach (Product product in groupedProducts)
@@ -148,7 +247,11 @@ namespace BmecatDatasourceReader
                     }
                 }
             }
-
+            
+            if (!featureMatixByGroupKeys.ContainsKey(groupedProductsKey) && useCaching)
+            {
+                featureMatixByGroupKeys[groupedProductsKey] = featureMatrix;
+            }
 
             return featureMatrix;
         }
@@ -188,9 +291,9 @@ namespace BmecatDatasourceReader
             return differentFeatures;
         }
 
-        public List<EtimFeature> GetDifferingFeaturesFromGroupedProducts(List<Product> groupedProducts)
+        public List<EtimFeature> GetDifferingFeaturesFromGroupedProducts(KeyValuePair<string, List<Product>> groupedProducts)
         {
-            return GetDifferingFeaturesFromFeatureMatrix(GetFeatureMatrixForGroupedProducts(groupedProducts));
+            return GetDifferingFeaturesFromFeatureMatrix(GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true));
         }
 
         public Dictionary<EtimFeature, List<ProductFeature>> GetAllDifferingFeaturesWithPossibleValues()
@@ -199,9 +302,9 @@ namespace BmecatDatasourceReader
             {
                 allDifferingFeaturesWithValues = new Dictionary<EtimFeature, List<ProductFeature>>();
 
-                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetProductsGroupedByParentKeyword())
+                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetGroupedProducts())
                 {
-                    Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = GetFeatureMatrixForGroupedProducts(groupedProducts.Value);
+                    Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                     List<EtimFeature> featuresWithDifferentValues = GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 
                     foreach (EtimFeature etimFeature in featuresWithDifferentValues)
@@ -262,9 +365,9 @@ namespace BmecatDatasourceReader
 
             public BmecatDatasource BmecatDatasource { get; set; }
 
-            public BmecatParser(EtimDatasource etimDatasource)
+            public BmecatParser(EtimDatasource etimDatasource, GroupMode groupMode)
             {
-                BmecatDatasource = new BmecatDatasource();
+                BmecatDatasource = new BmecatDatasource(groupMode);
                 EtimDatasource = etimDatasource;
             }
 
