@@ -36,11 +36,6 @@ namespace ConsoleTest
             int groupId = 1;
             foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
             {
-                if (groupedProducts.Key == "AL-1337")
-                {
-                    Console.Write("");
-                }
-
                 Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                 List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 

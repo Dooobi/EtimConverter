@@ -125,8 +125,7 @@ namespace ConsoleTest
 
         public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
-            //CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
-            CsvBuilder csvBuilder = new CsvBuilder("", "\t");
+            CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
 
             csvBuilder.AddData(bmecatDatasource);
 
@@ -134,6 +133,16 @@ namespace ConsoleTest
             
             DateTime now = DateTime.Now;
             string filename = "Generated--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvData);
+
+            // Second csv (easily viewable in google sheets)
+            csvBuilder = new CsvBuilder("", "\t");
+
+            csvBuilder.AddData(bmecatDatasource);
+
+            csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
+            
+            filename = "Generated--GoogleSheets--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvData);
         }
 

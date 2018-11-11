@@ -14,7 +14,14 @@ namespace ConsoleTest
             List<Column> columns = new List<Column>();
             columns.Add(new Column("XTSOL", (groupId, productGroup, product) => "XTSOL"));
             columns.Add(new Column("p_id", (groupId, productGroup, product) => Convert.ToString(groupId)));
-            columns.Add(new Column("p_model", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("p_model", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return product.SupplierPid;
+                }
+                return "";
+            }));
             //columns.Add(new Column("p_model", (groupId, productGroup, product) => product.ShortestKeyword));
             columns.Add(new Column("p_stock", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("p_sorting", (groupId, productGroup, product) => "0"));
@@ -25,15 +32,19 @@ namespace ConsoleTest
             columns.Add(new Column("p_opttpl", (groupId, productGroup, product) => "product_options_dropdown.html"));
             columns.Add(new Column("p_manufacturer", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_fsk18", (groupId, productGroup, product) => "0"));
-            columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => ""));
-            //columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => 
-            //{
-            //    if (product.Prices.ContainsKey("net_list"))
-            //    {
-            //        return product.Prices["net_list"].PriceAmount;
-            //    }
-            //    return "9999.99";
-            //}));
+            //columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    if (product.Prices.ContainsKey("net_list"))
+                    {
+                        return product.Prices["net_list"].PriceAmount;
+                    }
+                    return "9999.99";
+                }
+                return "";
+            }));
             columns.Add(new Column("p_priceNoTax.1", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_priceNoTax.2", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_priceNoTax.3", (groupId, productGroup, product) => ""));
@@ -108,7 +119,7 @@ namespace ConsoleTest
             //    return "";
             //}));
             columns.Add(new Column("p_name.en", (groupId, productGroup, product) => product.DescriptionShort));
-            columns.Add(new Column("p_desc.en", (groupId, productGroup, product) => product.DescriptionLong));
+            columns.Add(new Column("p_desc.en", (groupId, productGroup, product) => product.DescriptionLong.Replace("\n", "<br/>")));
             columns.Add(new Column("p_shortdesc.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_checkout_information.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_title.en", (groupId, productGroup, product) => ""));
@@ -133,7 +144,7 @@ namespace ConsoleTest
             columns.Add(new Column("gm_url_keywords.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("rewrite_url.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_name.de", (groupId, productGroup, product) => product.DescriptionShort));
-            columns.Add(new Column("p_desc.de", (groupId, productGroup, product) => product.DescriptionLong));
+            columns.Add(new Column("p_desc.de", (groupId, productGroup, product) => product.DescriptionLong.Replace(System.Environment.NewLine, "<br/>")));
             columns.Add(new Column("p_shortdesc.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_checkout_information.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_title.de", (groupId, productGroup, product) => ""));
