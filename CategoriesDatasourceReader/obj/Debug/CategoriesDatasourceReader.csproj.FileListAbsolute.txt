@@ -1,0 +1,6 @@
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\bin\Debug\CategoriesDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\bin\Debug\CategoriesDatasourceReader.pdb
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\obj\Debug\CategoriesDatasourceReader.csprojResolveAssemblyReference.cache
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\obj\Debug\CategoriesDatasourceReader.csproj.CoreCompileInputs.cache
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\obj\Debug\CategoriesDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\CategoriesDatasourceReader\obj\Debug\CategoriesDatasourceReader.pdb

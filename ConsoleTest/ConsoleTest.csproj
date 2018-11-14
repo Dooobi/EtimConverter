@@ -58,6 +58,10 @@
       <Project>{56540880-fd89-4f34-9394-fc2082344a17}</Project>
       <Name>BmecatDatasourceReader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CategoriesDatasourceReader\CategoriesDatasourceReader.csproj">
+      <Project>{83C746C6-5290-416C-B540-674E2424A442}</Project>
+      <Name>CategoriesDatasourceReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DbAccessor\DbAccessor.csproj">
       <Project>{846f1e9c-f2e0-4b22-9b01-49cb5b0ef5db}</Project>
       <Name>DbAccessor</Name>
@@ -65,6 +69,10 @@
     <ProjectReference Include="..\EtimDatasourceReader\EtimDatasourceReader.csproj">
       <Project>{4f42928e-86eb-4d3c-95d8-c2180b9df23b}</Project>
       <Name>EtimDatasourceReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VorzuegeDatasourceReader\VorzuegeDatasourceReader.csproj">
+      <Project>{52251C7C-CB88-440E-AC12-02FE915BD4B4}</Project>
+      <Name>VorzuegeDatasourceReader</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

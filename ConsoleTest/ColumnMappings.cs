@@ -119,7 +119,7 @@ namespace ConsoleTest
             //    return "";
             //}));
             columns.Add(new Column("p_name.en", (groupId, productGroup, product) => product.DescriptionShort));
-            columns.Add(new Column("p_desc.en", (groupId, productGroup, product) => product.DescriptionLong.Replace("\n", "<br/>")));
+            columns.Add(new Column("p_desc.en", (groupId, productGroup, product) => product.GetFullDescription()));
             columns.Add(new Column("p_shortdesc.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_checkout_information.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_title.en", (groupId, productGroup, product) => ""));
@@ -130,21 +130,17 @@ namespace ConsoleTest
             //columns.Add(new Column("p_url.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_url.en", (groupId, productGroup, product) =>
             {
-                if (product.Mimes.ContainsKey("url")
-                    && product.Mimes["url"].Count > 0)
+                string url = product.GetUrl();
+                if (url != null)
                 {
-                    ProductMime productMime = product.Mimes["url"].Find((mime) => mime.Description == "MD04");
-                    if (productMime != null)
-                    {
-                        return productMime.Source;
-                    }
+                    return url;
                 }
                 return "";
             }));
             columns.Add(new Column("gm_url_keywords.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("rewrite_url.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_name.de", (groupId, productGroup, product) => product.DescriptionShort));
-            columns.Add(new Column("p_desc.de", (groupId, productGroup, product) => product.DescriptionLong.Replace(System.Environment.NewLine, "<br/>")));
+            columns.Add(new Column("p_desc.de", (groupId, productGroup, product) => product.GetFullDescription()));
             columns.Add(new Column("p_shortdesc.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_checkout_information.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_title.de", (groupId, productGroup, product) => ""));
@@ -153,21 +149,33 @@ namespace ConsoleTest
             //columns.Add(new Column("p_url.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_url.de", (groupId, productGroup, product) =>
             {
-                if (product.Mimes.ContainsKey("url")
-                    && product.Mimes["url"].Count > 0)
+                string url = product.GetUrl();
+                if (url != null)
                 {
-                    ProductMime productMime = product.Mimes["url"].Find((mime) => mime.Description == "MD04");
-                    if (productMime != null)
-                    {
-                        return productMime.Source;
-                    }
+                    return url;
                 }
                 return "";
             }));
             columns.Add(new Column("gm_url_keywords.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("rewrite_url.de", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_cat.en", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["en-GB"].Description));
-            columns.Add(new Column("p_cat.de", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["de-DE"].Description));
+            //columns.Add(new Column("p_cat.en", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["en-GB"].Description));
+            //columns.Add(new Column("p_cat.de", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["de-DE"].Description));
+            columns.Add(new Column("p_cat.en", (groupId, productGroup, product) =>
+            {
+                if (product.Category != null)
+                {
+                    return product.Category.GetCategoryPath();
+                }
+                return "";
+            }));
+            columns.Add(new Column("p_cat.de", (groupId, productGroup, product) =>
+            {
+                if (product.Category != null)
+                {
+                    return product.Category.GetCategoryPath();
+                }
+                return "";
+            }));
             //columns.Add(new Column("google_export_availability", (groupId, productGroup, product) => "auf lager"));
             columns.Add(new Column("google_export_availability", (groupId, productGroup, product) => ""));
             //columns.Add(new Column("google_export_condition", (groupId, productGroup, product) => "neu"));

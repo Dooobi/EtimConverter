@@ -50,9 +50,17 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\CategoriesDatasourceReader\CategoriesDatasourceReader.csproj">
+      <Project>{83C746C6-5290-416C-B540-674E2424A442}</Project>
+      <Name>CategoriesDatasourceReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EtimDatasourceReader\EtimDatasourceReader.csproj">
       <Project>{4f42928e-86eb-4d3c-95d8-c2180b9df23b}</Project>
       <Name>EtimDatasourceReader</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\VorzuegeDatasourceReader\VorzuegeDatasourceReader.csproj">
+      <Project>{52251C7C-CB88-440E-AC12-02FE915BD4B4}</Project>
+      <Name>VorzuegeDatasourceReader</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

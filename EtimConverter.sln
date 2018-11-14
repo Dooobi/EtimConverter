@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BmecatDatasourceReader", "B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbAccessor", "DbAccessor\DbAccessor.csproj", "{846F1E9C-F2E0-4B22-9B01-49CB5B0EF5DB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CategoriesDatasourceReader", "CategoriesDatasourceReader\CategoriesDatasourceReader.csproj", "{83C746C6-5290-416C-B540-674E2424A442}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VorzuegeDatasourceReader", "VorzuegeDatasourceReader\VorzuegeDatasourceReader.csproj", "{52251C7C-CB88-440E-AC12-02FE915BD4B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{846F1E9C-F2E0-4B22-9B01-49CB5B0EF5DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{846F1E9C-F2E0-4B22-9B01-49CB5B0EF5DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{846F1E9C-F2E0-4B22-9B01-49CB5B0EF5DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83C746C6-5290-416C-B540-674E2424A442}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83C746C6-5290-416C-B540-674E2424A442}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83C746C6-5290-416C-B540-674E2424A442}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83C746C6-5290-416C-B540-674E2424A442}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52251C7C-CB88-440E-AC12-02FE915BD4B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52251C7C-CB88-440E-AC12-02FE915BD4B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52251C7C-CB88-440E-AC12-02FE915BD4B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52251C7C-CB88-440E-AC12-02FE915BD4B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

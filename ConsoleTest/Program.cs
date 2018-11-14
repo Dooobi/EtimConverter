@@ -1,5 +1,6 @@
 ﻿using BmecatDatasourceReader;
 using BmecatDatasourceReader.Model;
+using CategoriesDatasourceReader;
 using DbAccessor;
 using EtimDatasourceReader;
 using System;
@@ -7,7 +8,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml.Linq;
+using VorzuegeDatasourceReader;
 using static BmecatDatasourceReader.BmecatDatasource;
+using static CategoriesDatasourceReader.CategoriesMappingDatasource;
 
 namespace ConsoleTest
 {
@@ -24,8 +27,18 @@ namespace ConsoleTest
             Console.WriteLine(etimDatasource.Classes.Count + " Classes");
             Console.WriteLine();
 
+            Console.WriteLine("Parsing CategoriesMapping file...");
+            CategoriesMappingParser categoriesMappingParser = new CategoriesMappingParser('\t');
+            CategoriesMappingDatasource categoriesMappingDatasource = categoriesMappingParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\kategorien_zuordnung.tsv");
+            Console.WriteLine(categoriesMappingDatasource.CategoriesMapping.Count + " Kategorien Mappings");
+            Console.WriteLine();
+
+            Console.WriteLine("Parsing Vorzuege cache...");
+            VorzuegeDatasource vorzuegeDatasource = new VorzuegeDatasource(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\vorzuege_cache.xml");
+            Console.WriteLine();
+
             Console.WriteLine("Parsing Bmecat file...");
-            BmecatParser bmecatParser = new BmecatParser(etimDatasource, GroupMode.NAME_AND_DESCRIPTION);
+            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.NAME_AND_DESCRIPTION);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");
@@ -33,7 +46,10 @@ namespace ConsoleTest
             Console.WriteLine(bmecatDatasource.AllUsedEtimClasses.Count + " different EtimClasses");
             Console.WriteLine();
 
+            vorzuegeDatasource.PersistCache();
+
             GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
+            //GambioDbAccessor dbAccessor = new GambioDbAccessor("keepsake.store.d0m.de", "DB3503426", "skey-U3503426", "Vista123456!");
 
             // Do diagnostics
             int groups = 0;
@@ -70,9 +86,12 @@ namespace ConsoleTest
 
             // Datei für Klaus
             bld = new StringBuilder();
-            foreach (KeyValuePair<string, string> groupedProducts in bmecatDatasource.GetProductGroupNamesWithKeywords())
-            {
-                bld.Append(groupedProducts.Value).Append("\t").Append(groupedProducts.Key).AppendLine("\t");
+            //foreach (KeyValuePair<string, string> groupedProducts in bmecatDatasource.GetProductGroupNamesWithKeywords())
+            //{
+            //    bld.Append(groupedProducts.Value).Append("\t").Append(groupedProducts.Key).AppendLine("\t");
+            //}
+            foreach (KeyValuePair<string, List<Product>> group in bmecatDatasource.GetGroupedProducts()) {
+
             }
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "KlausKategorienUndVorzüge.csv", bld.ToString());
 
@@ -125,25 +144,36 @@ namespace ConsoleTest
 
         public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
+            // First (regular) csv
             CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
 
-            csvBuilder.AddData(bmecatDatasource);
+            csvBuilder.AddData(bmecatDatasource, false);
 
             String csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
             DateTime now = DateTime.Now;
-            string filename = "Generated--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvData);
+            string filename = "WithSingleProductGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
 
-            // Second csv (easily viewable in google sheets)
+            // Second csv (only groups with multiple products)
+            csvBuilder = new CsvBuilder("\"", "|");
+
+            csvBuilder.AddData(bmecatDatasource, true);
+
+            csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
+
+            filename = "OnlyMultipleProductsInGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
+
+            // Third csv (easily viewable in google sheets)
             csvBuilder = new CsvBuilder("", "\t");
 
-            csvBuilder.AddData(bmecatDatasource);
+            csvBuilder.AddData(bmecatDatasource, false);
 
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
-            filename = "Generated--GoogleSheets--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/" + filename, csvData);
+            filename = "GoogleSheets--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
         }
 
         public static void BuildXml(BmecatDatasource bmecatDatasource)

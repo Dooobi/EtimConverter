@@ -4,6 +4,8 @@ using System.Linq;
 using BmecatDatasourceReader.Model;
 using System.Xml;
 using EtimDatasourceReader;
+using CategoriesDatasourceReader;
+using VorzuegeDatasourceReader;
 
 namespace BmecatDatasourceReader
 {
@@ -362,13 +364,17 @@ namespace BmecatDatasourceReader
         public class BmecatParser
         {
             public EtimDatasource EtimDatasource { get; set; }
+            public CategoriesMappingDatasource CategoriesMappingDatasource { get; set; }
+            public VorzuegeDatasource VorzuegeDatasource { get; set; }
 
             public BmecatDatasource BmecatDatasource { get; set; }
 
-            public BmecatParser(EtimDatasource etimDatasource, GroupMode groupMode)
+            public BmecatParser(EtimDatasource etimDatasource, CategoriesMappingDatasource categoriesMappingDatasource, VorzuegeDatasource vorzuegeDatasource, GroupMode groupMode)
             {
                 BmecatDatasource = new BmecatDatasource(groupMode);
                 EtimDatasource = etimDatasource;
+                CategoriesMappingDatasource = categoriesMappingDatasource;
+                VorzuegeDatasource = vorzuegeDatasource;
             }
 
             public BmecatDatasource Parse(string bmecatFilepath)
@@ -445,6 +451,16 @@ namespace BmecatDatasourceReader
                     // Product Logistic Details
                     ParseProductLogisticDetails(product, xmlProduct);
 
+                    // Add category from CategoriesMappingDatasource
+                    product.Category = CategoriesMappingDatasource.CategoriesMapping[product.DescriptionShort];
+
+                    // Add vorzuege from VorzuegeDatasource
+                    string url = product.GetUrl();
+                    if (url != null)
+                    {
+                        product.Vorzuege = VorzuegeDatasource.GetVorzuegeByUrl(url);
+                    }
+
                     BmecatDatasource.Products.Add(product);
 
                     currentCount++;
@@ -494,6 +510,12 @@ namespace BmecatDatasourceReader
                     {
                         product.ShortestKeyword = xmlKeyword.InnerText;
                     }
+
+                    // Add category from CategoriesMappingDatasource
+                    //if (CategoriesMappingDatasource.CategoriesMapping.ContainsKey(xmlKeyword.InnerText))
+                    //{
+                    //    product.Category = CategoriesMappingDatasource.CategoriesMapping[xmlKeyword.InnerText];
+                    //}
                 }
             }
 
@@ -540,12 +562,9 @@ namespace BmecatDatasourceReader
                 if (xmlFValues.Count > 0)
                 {
                     feature.RawValue1 = xmlFValues[0].InnerText;
-                    try
+                    if (EtimDatasource.Values.ContainsKey(xmlFValues[0].InnerText))
                     {
                         feature.Value1 = EtimDatasource.Values[xmlFValues[0].InnerText];
-                    }
-                    catch (Exception)
-                    {
                     }
                 }
                 if (xmlFValues.Count > 1)
@@ -553,12 +572,9 @@ namespace BmecatDatasourceReader
                     if (xmlFValues[1].InnerText != feature.RawValue1)
                     {
                         feature.RawValue2 = xmlFValues[1].InnerText;
-                        try
+                        if (EtimDatasource.Values.ContainsKey(xmlFValues[1].InnerText))
                         {
                             feature.Value2 = EtimDatasource.Values[xmlFValues[1].InnerText];
-                        }
-                        catch (Exception)
-                        {
                         }
                     }
                 }

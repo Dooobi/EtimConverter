@@ -1,5 +1,7 @@
-﻿using EtimDatasourceReader;
+﻿using CategoriesDatasourceReader;
+using EtimDatasourceReader;
 using System.Collections.Generic;
+using System.Text;
 
 namespace BmecatDatasourceReader.Model
 {
@@ -25,6 +27,51 @@ namespace BmecatDatasourceReader.Model
             }
             return null;
         }
+
+        public string GetUrl()
+        {
+            if (Mimes.ContainsKey("url")
+                    && Mimes["url"].Count > 0)
+            {
+                ProductMime productMime = Mimes["url"].Find((mime) => mime.Description == "MD04");
+                if (productMime != null)
+                {
+                    return productMime.Source;
+                }
+            }
+            return null;
+        }
+
+        public string GetFullDescription()
+        {
+            string descriptionLong = "";
+            string vorzuege = "";
+
+            if (DescriptionLong != null)
+            {
+                descriptionLong = DescriptionLong.Replace("\n", "<br/>");
+            }
+            if (Vorzuege != null)
+            {
+                vorzuege = Vorzuege;
+            }
+
+            StringBuilder bld = new StringBuilder();
+            bld.Append(descriptionLong);
+            if (descriptionLong != "" && vorzuege != "")
+            {
+                bld.Append("<br/><br/>");
+            }
+            bld.Append(vorzuege);
+
+            return bld.ToString();
+        }
+
+        // Category (from CategoriesMappingDatasource)
+        public Category Category { get; set; }
+
+        // Vorzuege (from VorzuegeDatasource)
+        public string Vorzuege { get; set; }
 
         // Header
         public string Mode { get; set; }

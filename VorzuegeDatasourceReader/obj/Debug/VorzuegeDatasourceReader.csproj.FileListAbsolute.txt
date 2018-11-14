@@ -1,0 +1,9 @@
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\bin\Debug\VorzuegeDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\bin\Debug\VorzuegeDatasourceReader.pdb
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\bin\Debug\HtmlAgilityPack.xml
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\obj\Debug\VorzuegeDatasourceReader.csprojResolveAssemblyReference.cache
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\obj\Debug\VorzuegeDatasourceReader.csproj.CoreCompileInputs.cache
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\obj\Debug\VorzuegeDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\VorzuegeDatasourceReader\obj\Debug\VorzuegeDatasourceReader.pdb

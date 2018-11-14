@@ -29,13 +29,18 @@ namespace ConsoleTest
             this.columnSeparator = columnSeparator;
         }
 
-        public void AddData(BmecatDatasource bmecatDatasource)
+        public void AddData(BmecatDatasource bmecatDatasource, bool skipGroupsWithOnlyOneProduct)
         {
             List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
 
             int groupId = 1;
             foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
             {
+                if (skipGroupsWithOnlyOneProduct && groupedProducts.Value.Count == 1)
+                {
+                    continue;
+                }
+
                 Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                 List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 
