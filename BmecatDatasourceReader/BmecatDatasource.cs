@@ -221,7 +221,12 @@ namespace BmecatDatasourceReader
         {
             MD5 md5Hasher = MD5.Create();
             byte[] hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(groupKey));
-            return Convert.ToString(BitConverter.ToUInt32(hashed, 0));
+            string numberKey = Convert.ToString(BitConverter.ToUInt32(hashed, 0));
+            if (numberKey.Length > 9)
+            {
+                numberKey = numberKey.Substring(1);
+            }
+            return numberKey;
         }
 
         public bool IsFeatureCombinationUniqueInList(Product product, string groupedProductsKey, List<Product> groupedProducts)
