@@ -19,18 +19,18 @@ namespace ConsoleTest
             BmecatDatasource = bmecatDatasource;
         }
 
-        public XElement BuildXml()
+        public XElement BuildXml(bool filterDuplicateFeatureCombinations)
         {
             XElement root = new XElement("Root");
 
-            AddGroups(root);
+            AddGroups(root, filterDuplicateFeatureCombinations);
 
             return root;
         }
 
-        private void AddGroups(XElement root)
+        private void AddGroups(XElement root, bool filterDuplicateFeatureCombinations)
         {
-            Dictionary<string, List<Product>> groupedProducts = BmecatDatasource.GetGroupedProducts();
+            Dictionary<string, List<Product>> groupedProducts = BmecatDatasource.GetGroupedProducts(filterDuplicateFeatureCombinations);
 
             XElement xGroups = new XElement("Groups");
             xGroups.SetAttributeValue("count", groupedProducts.Count);

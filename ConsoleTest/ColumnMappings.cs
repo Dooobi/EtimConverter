@@ -78,46 +78,46 @@ namespace ConsoleTest
             columns.Add(new Column("p_vpe", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_vpe_status", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_vpe_value", (groupId, productGroup, product) => "0"));
-            columns.Add(new Column("p_image.1", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_image.2", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_image.3", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_image", (groupId, productGroup, product) => ""));
-            //columns.Add(new Column("p_image.1", (groupId, productGroup, product) =>
-            //{
-            //    if (product.Mimes.ContainsKey("image/jpeg")
-            //        && product.Mimes["image/jpeg"].Count > 1)
-            //    {
-            //        return product.Mimes["image/jpeg"][1].Source;
-            //    }
-            //    return "";
-            //}));
-            //columns.Add(new Column("p_image.2", (groupId, productGroup, product) =>
-            //{
-            //    if (product.Mimes.ContainsKey("image/jpeg")
-            //        && product.Mimes["image/jpeg"].Count > 2)
-            //    {
-            //        return product.Mimes["image/jpeg"][2].Source;
-            //    }
-            //    return "";
-            //}));
-            //columns.Add(new Column("p_image.3", (groupId, productGroup, product) =>
-            //{
-            //    if (product.Mimes.ContainsKey("image/jpeg")
-            //        && product.Mimes["image/jpeg"].Count > 3)
-            //    {
-            //        return product.Mimes["image/jpeg"][3].Source;
-            //    }
-            //    return "";
-            //}));
-            //columns.Add(new Column("p_image", (groupId, productGroup, product) =>
-            //{
-            //    if (product.Mimes.ContainsKey("image/jpeg")
-            //        && product.Mimes["image/jpeg"].Count > 0)
-            //    {
-            //        return product.Mimes["image/jpeg"][0].Source;
-            //    }
-            //    return "";
-            //}));
+            //columns.Add(new Column("p_image.1", (groupId, productGroup, product) => ""));
+            //columns.Add(new Column("p_image.2", (groupId, productGroup, product) => ""));
+            //columns.Add(new Column("p_image.3", (groupId, productGroup, product) => ""));
+            //columns.Add(new Column("p_image", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("p_image.1", (groupId, productGroup, product) =>
+            {
+                if (product.Mimes.ContainsKey("image/jpeg")
+                    && product.Mimes["image/jpeg"].Count > 1)
+                {
+                    return product.Mimes["image/jpeg"][1].Source;
+                }
+                return "";
+            }));
+            columns.Add(new Column("p_image.2", (groupId, productGroup, product) =>
+            {
+                if (product.Mimes.ContainsKey("image/jpeg")
+                    && product.Mimes["image/jpeg"].Count > 2)
+                {
+                    return product.Mimes["image/jpeg"][2].Source;
+                }
+                return "";
+            }));
+            columns.Add(new Column("p_image.3", (groupId, productGroup, product) =>
+            {
+                if (product.Mimes.ContainsKey("image/jpeg")
+                    && product.Mimes["image/jpeg"].Count > 3)
+                {
+                    return product.Mimes["image/jpeg"][3].Source;
+                }
+                return "";
+            }));
+            columns.Add(new Column("p_image", (groupId, productGroup, product) =>
+            {
+                if (product.Mimes.ContainsKey("image/jpeg")
+                    && product.Mimes["image/jpeg"].Count > 0)
+                {
+                    return product.Mimes["image/jpeg"][0].Source;
+                }
+                return "";
+            }));
             columns.Add(new Column("p_name.en", (groupId, productGroup, product) => product.DescriptionShort));
             columns.Add(new Column("p_desc.en", (groupId, productGroup, product) => product.GetFullDescription()));
             columns.Add(new Column("p_shortdesc.en", (groupId, productGroup, product) => ""));
@@ -126,7 +126,14 @@ namespace ConsoleTest
             columns.Add(new Column("p_meta_desc.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_key.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_desc.de", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_keywords.en", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["en-GB"].Description));
+            columns.Add(new Column("p_keywords.en", (groupId, productGroup, product) =>
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(product.DescriptionShort).Append(" ");
+                product.Keywords.ForEach(keyword => sb.Append(keyword).Append(" "));
+                sb.Append(product.Category);
+                return sb.ToString();
+            }));
             //columns.Add(new Column("p_url.en", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_url.en", (groupId, productGroup, product) =>
             {
@@ -145,7 +152,14 @@ namespace ConsoleTest
             columns.Add(new Column("p_checkout_information.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_title.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_meta_key.de", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_keywords.de", (groupId, productGroup, product) => product.ReferenceFeatureGroup.Group.Translations["de-DE"].Description));
+            columns.Add(new Column("p_keywords.de", (groupId, productGroup, product) =>
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(product.DescriptionShort).Append(" ");
+                product.Keywords.ForEach(keyword => sb.Append(keyword).Append(" "));
+                sb.Append(product.Category);
+                return sb.ToString();
+            }));
             //columns.Add(new Column("p_url.de", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_url.de", (groupId, productGroup, product) =>
             {

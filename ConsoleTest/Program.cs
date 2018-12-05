@@ -38,7 +38,7 @@ namespace ConsoleTest
             Console.WriteLine();
 
             Console.WriteLine("Parsing Bmecat file...");
-            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.NAME_AND_DESCRIPTION);
+            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.NAME);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");
@@ -55,7 +55,7 @@ namespace ConsoleTest
             int groups = 0;
             int products = 0;
             StringBuilder bld = new StringBuilder();
-            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts(true))
             {
                 groups++;
                 List<EtimFeature> differingFeatures = bmecatDatasource.GetDifferingFeaturesFromGroupedProducts(groupedProducts);
@@ -90,12 +90,12 @@ namespace ConsoleTest
             //{
             //    bld.Append(groupedProducts.Value).Append("\t").Append(groupedProducts.Key).AppendLine("\t");
             //}
-            foreach (KeyValuePair<string, List<Product>> group in bmecatDatasource.GetGroupedProducts()) {
+            foreach (KeyValuePair<string, List<Product>> group in bmecatDatasource.GetGroupedProducts(true)) {
 
             }
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "KlausKategorienUndVorzüge.csv", bld.ToString());
 
-            Dictionary<EtimFeature, List<ProductFeature>> allDifferentFeaturesWithPossibleValues = bmecatDatasource.GetAllDifferingFeaturesWithPossibleValues();
+            Dictionary<EtimFeature, List<ProductFeature>> allDifferentFeaturesWithPossibleValues = bmecatDatasource.GetAllDifferingFeaturesWithPossibleValues(true);
             Console.WriteLine(allDifferentFeaturesWithPossibleValues.Keys.Count);
             bld = new StringBuilder();
 
@@ -129,11 +129,26 @@ namespace ConsoleTest
             }
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "FeaturesWithTwoValues.txt", bld.ToString());
 
+            // All used Features
+            bld = new StringBuilder();
+            foreach (KeyValuePair<EtimFeature, List<ProductFeature>> featureWithValues in bmecatDatasource.GetAllFeaturesWithPossibleValues())
+            {
+                bld.Append(featureWithValues.Key.Translations["de-DE"].Description);
+
+                foreach (ProductFeature productFeature in featureWithValues.Value)
+                {
+                    bld.Append("\t").Append(productFeature.ToPropertyValue());
+                }
+
+                bld.AppendLine();
+            }
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "AllUsedEtimFeaturesWithValues.txt", bld.ToString());
+
             // Handle DB
             HandleDb(dbAccessor, allDifferentFeaturesWithPossibleValues);
 
             // Build xml file (debugging)
-            BuildXml(bmecatDatasource);
+            BuildDebugXml(bmecatDatasource);
 
             // Build csv file
             BuildCsv(bmecatDatasource, dbAccessor);
@@ -147,7 +162,7 @@ namespace ConsoleTest
             // First (regular) csv
             CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
 
-            csvBuilder.AddData(bmecatDatasource, false);
+            csvBuilder.AddData(bmecatDatasource, false, true);
 
             String csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
@@ -158,7 +173,7 @@ namespace ConsoleTest
             // Second csv (only groups with multiple products)
             csvBuilder = new CsvBuilder("\"", "|");
 
-            csvBuilder.AddData(bmecatDatasource, true);
+            csvBuilder.AddData(bmecatDatasource, true, true);
 
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
 
@@ -168,7 +183,7 @@ namespace ConsoleTest
             // Third csv (easily viewable in google sheets)
             csvBuilder = new CsvBuilder("", "\t");
 
-            csvBuilder.AddData(bmecatDatasource, false);
+            csvBuilder.AddData(bmecatDatasource, false, true);
 
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
@@ -176,13 +191,17 @@ namespace ConsoleTest
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
         }
 
-        public static void BuildXml(BmecatDatasource bmecatDatasource)
+        public static void BuildDebugXml(BmecatDatasource bmecatDatasource)
         {
             XmlCreator xmlCreator = new XmlCreator(bmecatDatasource);
 
-            XElement root = xmlCreator.BuildXml();
+            // File with unique feature combinations
+            XElement root = xmlCreator.BuildXml(true);
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug_Uniques.xml", root.ToString());
 
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug.xml", root.ToString());
+            // File with duplicate feature combinations
+            root = xmlCreator.BuildXml(false);
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug_Duplicates.xml", root.ToString());
         }
 
         public static void HandleDb(GambioDbAccessor dbAccessor, Dictionary<EtimFeature, List<ProductFeature>> featuresWithPossibleValues)

@@ -9,6 +9,5 @@ namespace ConsoleTest
     public class Settings
     {
         public static int nextPropertiesId = 10;
-
     }
 }

@@ -6,6 +6,8 @@ using System.Xml;
 using EtimDatasourceReader;
 using CategoriesDatasourceReader;
 using VorzuegeDatasourceReader;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BmecatDatasourceReader
 {
@@ -13,7 +15,9 @@ namespace BmecatDatasourceReader
     {
         KEYWORD,
         NAME,
-        NAME_AND_DESCRIPTION
+        NAME_AND_DESCRIPTION,
+        NAME_AND_DESCRIPTION_AND_VORZUEGE,
+        URL
     }
 
     public class BmecatDatasource
@@ -26,10 +30,35 @@ namespace BmecatDatasourceReader
 
         public List<Product> Products { get; set; }
 
-        public Dictionary<string, List<Product>> productsGroupedByParent;
+        public Dictionary<string, List<Product>> productsGroupedByParentUniqueFeatureCombinations;
+        public Dictionary<string, List<Product>> productsGroupedByParentDuplicateFeatureCombinations;
+
         public Dictionary<string, Dictionary<EtimFeature, Dictionary<Product, ProductFeature>>> featureMatixByGroupKeys;
 
         public GroupMode GroupMode { get; set; }
+
+        public static List<string> allowedFeatures = new List<string>(new string[]
+        {
+            "Höhe",
+            "Länge",
+            "Breite",
+            "Außendurchmesser",
+            "Farbtemperatur",
+            "Art der Dimmung",
+            "Gehäusefarbe",
+            "Lampenleistung",
+            "Effektiver Lichtstrom",
+            "Einbaulänge",
+            "Einbaudurchmesser",
+            "Ausgangsspannung",
+            "Durchmesser",
+            "Höhe/Tiefe",
+            "Lichtstrom",
+            "Strahlungswinkel",
+            "Sockel",
+            "Lichtfarbe",
+            "Farbtemperatur"
+        });
 
         private BmecatDatasource(GroupMode groupMode)
         {
@@ -82,11 +111,23 @@ namespace BmecatDatasourceReader
             return groupNameWithKeyword;
         }
 
-        public Dictionary<string, List<Product>> GetGroupedProducts()
+        public Dictionary<string, List<Product>> GetGroupedProducts(bool filterDuplicateFeatureCombinations)
         {
-            if (productsGroupedByParent == null)
+            if (filterDuplicateFeatureCombinations)
             {
-                productsGroupedByParent = new Dictionary<string, List<Product>>();
+                return GetGroupedProductsUniqueFeatureCombinations();
+            }
+            else
+            {
+                return GetGroupedProductsDuplicateFeatureCombinations();
+            }
+        }
+
+        public Dictionary<string, List<Product>> GetGroupedProductsUniqueFeatureCombinations()
+        {
+            if (productsGroupedByParentUniqueFeatureCombinations == null)
+            {
+                productsGroupedByParentUniqueFeatureCombinations = new Dictionary<string, List<Product>>();
 
                 foreach (Product product in Products)
                 {
@@ -102,23 +143,26 @@ namespace BmecatDatasourceReader
                         case GroupMode.NAME_AND_DESCRIPTION:
                             key = product.DescriptionShort + product.DescriptionLong;
                             break;
+                        case GroupMode.NAME_AND_DESCRIPTION_AND_VORZUEGE:
+                            key = product.DescriptionShort + product.DescriptionLong + product.Vorzuege;
+                            break;
+                        case GroupMode.URL:
+                            key = product.GetUrl();
+                            break;
                         default:
                             key = "NO_GROUP_MODE";
                             break;
                     }
 
-                    if (product.SupplierPid.StartsWith("AL-1337"))
-                    {
-                        Console.Write("");
-                    }
+                    string numberKey = KeyToHashedNumber(key);
 
-                    if (!productsGroupedByParent.ContainsKey(key))
+                    if (!productsGroupedByParentUniqueFeatureCombinations.ContainsKey(numberKey))
                     {
-                        productsGroupedByParent[key] = new List<Product>();
+                        productsGroupedByParentUniqueFeatureCombinations[numberKey] = new List<Product>();
                     }
-                    if (IsFeatureCombinationUniqueInList(product, key, productsGroupedByParent[key]))
+                    if (IsFeatureCombinationUniqueInList(product, numberKey, productsGroupedByParentUniqueFeatureCombinations[numberKey]))
                     {
-                        productsGroupedByParent[key].Add(product);
+                        productsGroupedByParentUniqueFeatureCombinations[numberKey].Add(product);
                     }
                     else
                     {
@@ -126,7 +170,58 @@ namespace BmecatDatasourceReader
                     }
                 }
             }
-            return productsGroupedByParent;
+            return productsGroupedByParentUniqueFeatureCombinations;
+        }
+
+        public Dictionary<string, List<Product>> GetGroupedProductsDuplicateFeatureCombinations()
+        {
+            if (productsGroupedByParentDuplicateFeatureCombinations == null)
+            {
+                productsGroupedByParentDuplicateFeatureCombinations = new Dictionary<string, List<Product>>();
+
+                foreach (Product product in Products)
+                {
+                    string key;
+                    switch (GroupMode)
+                    {
+                        case GroupMode.KEYWORD:
+                            key = product.ShortestKeyword;
+                            break;
+                        case GroupMode.NAME:
+                            key = product.DescriptionShort;
+                            break;
+                        case GroupMode.NAME_AND_DESCRIPTION:
+                            key = product.DescriptionShort + product.DescriptionLong;
+                            break;
+                        case GroupMode.NAME_AND_DESCRIPTION_AND_VORZUEGE:
+                            key = product.DescriptionShort + product.DescriptionLong + product.Vorzuege;
+                            break;
+                        case GroupMode.URL:
+                            key = product.GetUrl();
+                            break;
+                        default:
+                            key = "NO_GROUP_MODE";
+                            break;
+                    }
+
+                    string numberKey = KeyToHashedNumber(key);
+
+                    if (!productsGroupedByParentDuplicateFeatureCombinations.ContainsKey(numberKey))
+                    {
+                        productsGroupedByParentDuplicateFeatureCombinations[numberKey] = new List<Product>();
+                    }
+
+                    productsGroupedByParentDuplicateFeatureCombinations[numberKey].Add(product);
+                }
+            }
+            return productsGroupedByParentDuplicateFeatureCombinations;
+        }
+
+        private string KeyToHashedNumber(string groupKey)
+        {
+            MD5 md5Hasher = MD5.Create();
+            byte[] hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(groupKey));
+            return Convert.ToString(BitConverter.ToUInt32(hashed, 0));
         }
 
         public bool IsFeatureCombinationUniqueInList(Product product, string groupedProductsKey, List<Product> groupedProducts)
@@ -298,13 +393,13 @@ namespace BmecatDatasourceReader
             return GetDifferingFeaturesFromFeatureMatrix(GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true));
         }
 
-        public Dictionary<EtimFeature, List<ProductFeature>> GetAllDifferingFeaturesWithPossibleValues()
+        public Dictionary<EtimFeature, List<ProductFeature>> GetAllDifferingFeaturesWithPossibleValues(bool filterDuplicateFeatureCombinations)
         {
             if (allDifferingFeaturesWithValues == null)
             {
                 allDifferingFeaturesWithValues = new Dictionary<EtimFeature, List<ProductFeature>>();
 
-                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetGroupedProducts())
+                foreach (KeyValuePair<string, List<Product>> groupedProducts in GetGroupedProducts(filterDuplicateFeatureCombinations))
                 {
                     Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                     List<EtimFeature> featuresWithDifferentValues = GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
@@ -339,10 +434,32 @@ namespace BmecatDatasourceReader
             return allDifferingFeaturesWithValues;
         }
 
+        public Dictionary<EtimFeature, List<ProductFeature>> GetAllFeaturesWithPossibleValues()
+        {
+            Dictionary<EtimFeature, List<ProductFeature>>  allFeaturesWithValues = new Dictionary<EtimFeature, List<ProductFeature>>();
+            
+            foreach (Product product in Products)
+            {
+                foreach (ProductFeature productFeature in product.Features)
+                {
+                    if (!allFeaturesWithValues.ContainsKey(productFeature.EtimFeature)) {
+                        allFeaturesWithValues[productFeature.EtimFeature] = new List<ProductFeature>();
+                    }
+
+                    if (!IsProductFeatureInList(productFeature, allFeaturesWithValues[productFeature.EtimFeature]))
+                    {
+                        allFeaturesWithValues[productFeature.EtimFeature].Add(productFeature);
+                    }
+                }
+            }
+
+            return allFeaturesWithValues;
+        }
+
         public List<EtimFeature> GetAllDifferingFeatures()
         {
             List<EtimFeature> allDifferingFeatures = new List<EtimFeature>();
-            foreach (EtimFeature feature in GetAllDifferingFeaturesWithPossibleValues().Keys)
+            foreach (EtimFeature feature in GetAllDifferingFeaturesWithPossibleValues(true).Keys)
             {
                 allDifferingFeatures.Add(feature);
             }
@@ -552,6 +669,12 @@ namespace BmecatDatasourceReader
                 XmlNode xmlFValueDetails = xmlFeature.SelectSingleNode("./FVALUE_DETAILS");
 
                 EtimFeature etimFeature = EtimDatasource.Features[xmlFName.InnerText];
+
+                if (!allowedFeatures.Contains(etimFeature.Translations["de-DE"].Description))
+                {
+                    return;
+                }
+
                 EtimUnit etimUnit = xmlFUnit == null ? null : EtimDatasource.Units[xmlFUnit.InnerText];
 
                 ProductFeature feature = new ProductFeature();

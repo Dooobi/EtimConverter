@@ -29,16 +29,21 @@ namespace ConsoleTest
             this.columnSeparator = columnSeparator;
         }
 
-        public void AddData(BmecatDatasource bmecatDatasource, bool skipGroupsWithOnlyOneProduct)
+        public void AddData(BmecatDatasource bmecatDatasource, bool skipGroupsWithOnlyOneProduct, bool filterDuplicateFeatureCombinations)
         {
             List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
-
-            int groupId = 1;
-            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts())
+            
+            foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts(filterDuplicateFeatureCombinations))
             {
                 if (skipGroupsWithOnlyOneProduct && groupedProducts.Value.Count == 1)
                 {
+                    Console.WriteLine("Skipped group (only one product): " + groupedProducts.Key);
                     continue;
+                }
+
+                if (groupedProducts.Key == "EDLM™ GU10 Stahl Einbaustrahler Feststehend")
+                {
+                    Console.Write("");
                 }
 
                 Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
@@ -49,7 +54,7 @@ namespace ConsoleTest
                     for (int i = 0; i < columns.Count; i++)
                     {
                         Column column = columns[i];
-                        string value = column.DelegateGetValue(groupId, groupedProducts, product);
+                        string value = column.DelegateGetValue(groupedProducts.Key, groupedProducts, product);
 
                         if (i != 0)
                         {
@@ -76,8 +81,6 @@ namespace ConsoleTest
 
                     builder.AppendLine();
                 }
-
-                groupId++;
             }
         }
 
