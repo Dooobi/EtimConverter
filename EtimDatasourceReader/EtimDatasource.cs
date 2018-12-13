@@ -43,6 +43,25 @@ namespace EtimDatasourceReader
             etimDatasource.Groups = ParseGroups(xmlDoc, manager);
             etimDatasource.Classes = ParseClasses(xmlDoc, manager, etimDatasource.Groups, etimDatasource.Features, etimDatasource.Units, etimDatasource.Values);
 
+            // Add SKU feature (custom feature)
+            EtimFeature skuFeature = new EtimFeature();
+            skuFeature.Code = "SKU_FEATURE";
+            skuFeature.Type = "Alphanumeric";
+
+            Translation skuFeatureTranslation = new Translation();
+            skuFeatureTranslation.Language = "de-DE";
+            skuFeatureTranslation.Abbreviation = "Artikelnummer";
+            skuFeatureTranslation.Description = "Artikelnummer";
+            skuFeature.Translations.Add("de-DE", skuFeatureTranslation);
+
+            skuFeatureTranslation = new Translation();
+            skuFeatureTranslation.Language = "en-GB";
+            skuFeatureTranslation.Abbreviation = "Product Number";
+            skuFeatureTranslation.Description = "Product Number";
+            skuFeature.Translations.Add("en-GB", skuFeatureTranslation);
+
+            etimDatasource.Features.Add(skuFeature.Code, skuFeature);
+
             return etimDatasource;
         }
 

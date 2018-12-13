@@ -38,7 +38,7 @@ namespace ConsoleTest
             Console.WriteLine();
 
             Console.WriteLine("Parsing Bmecat file...");
-            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.NAME);
+            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.URL);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");

@@ -41,11 +41,6 @@ namespace ConsoleTest
                     continue;
                 }
 
-                if (groupedProducts.Key == "EDLM™ GU10 Stahl Einbaustrahler Feststehend")
-                {
-                    Console.Write("");
-                }
-
                 Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                 List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 

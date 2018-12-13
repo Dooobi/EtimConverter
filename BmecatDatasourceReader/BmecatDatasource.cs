@@ -39,25 +39,26 @@ namespace BmecatDatasourceReader
 
         public static List<string> allowedFeatures = new List<string>(new string[]
         {
-            "Höhe",
-            "Länge",
-            "Breite",
-            "Außendurchmesser",
-            "Farbtemperatur",
-            "Art der Dimmung",
-            "Gehäusefarbe",
-            "Lampenleistung",
-            "Effektiver Lichtstrom",
-            "Einbaulänge",
-            "Einbaudurchmesser",
-            "Ausgangsspannung",
-            "Durchmesser",
-            "Höhe/Tiefe",
-            "Lichtstrom",
-            "Strahlungswinkel",
-            "Sockel",
-            "Lichtfarbe",
-            "Farbtemperatur"
+            //"Höhe",
+            //"Länge",
+            //"Breite",
+            //"Außendurchmesser",
+            //"Farbtemperatur",
+            //"Art der Dimmung",
+            //"Gehäusefarbe",
+            //"Lampenleistung",
+            //"Effektiver Lichtstrom",
+            //"Einbaulänge",
+            //"Einbaudurchmesser",
+            //"Ausgangsspannung",
+            //"Durchmesser",
+            //"Höhe/Tiefe",
+            //"Lichtstrom",
+            //"Strahlungswinkel",
+            //"Sockel",
+            //"Lichtfarbe",
+            //"Farbtemperatur"
+            "Artikelnummer"
         });
 
         private BmecatDatasource(GroupMode groupMode)
@@ -655,6 +656,13 @@ namespace BmecatDatasourceReader
                 {
                     ParseProductFeature(product, xmlFeature);
                 }
+
+                // Add Sku as a custom Feature
+                ProductFeature skuProductFeature = new ProductFeature();
+                skuProductFeature.EtimFeature = EtimDatasource.Features["SKU_FEATURE"];
+                skuProductFeature.RawValue1 = product.SupplierPid;
+                product.Features.Add(skuProductFeature);
+                //
 
                 if (!BmecatDatasource.AllUsedEtimClasses.Contains(etimClass))
                 {

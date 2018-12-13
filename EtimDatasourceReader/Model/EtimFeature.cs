@@ -13,5 +13,10 @@ namespace EtimDatasourceReader
         public string Code { get; set; }
         public string Type { get; set; }
         public Dictionary<string, Translation> Translations { get; set; }
+
+        public EtimFeature()
+        {
+            Translations = new Dictionary<string, Translation>();
+        }
     }
 }
