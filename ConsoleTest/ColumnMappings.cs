@@ -16,10 +16,10 @@ namespace ConsoleTest
             columns.Add(new Column("p_id", (groupId, productGroup, product) => Convert.ToString(groupId)));
             columns.Add(new Column("p_model", (groupId, productGroup, product) =>
             {
-                if (productGroup.Value.Count <= 1)
-                {
-                    return product.SupplierPid;
-                }
+                //if (productGroup.Value.Count <= 1)
+                //{
+                //    return product.SupplierPid;
+                //}
                 return "";
             }));
             //columns.Add(new Column("p_model", (groupId, productGroup, product) => product.ShortestKeyword));
@@ -35,14 +35,14 @@ namespace ConsoleTest
             //columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) =>
             {
-                if (productGroup.Value.Count <= 1)
-                {
-                    if (product.Prices.ContainsKey("net_list"))
-                    {
-                        return product.Prices["net_list"].PriceAmount;
-                    }
-                    return "9999.99";
-                }
+                //if (productGroup.Value.Count <= 1)
+                //{
+                //    if (product.Prices.ContainsKey("net_list"))
+                //    {
+                //        return product.Prices["net_list"].PriceAmount;
+                //    }
+                //    return "9999.99";
+                //}
                 return "";
             }));
             columns.Add(new Column("p_priceNoTax.1", (groupId, productGroup, product) => ""));

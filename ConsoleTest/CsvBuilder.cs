@@ -62,6 +62,10 @@ namespace ConsoleTest
                     foreach (EtimFeature feature in allDifferingFeatures)
                     {
                         string value = "";
+                        if (feature.Code == "SKU_FEATURE")
+                        {
+                            value = "<placeholder>";
+                        }
                         if (differingFeaturesForGroup.Contains(feature))
                         {
                             Dictionary<Product, ProductFeature> productFeatures = featureMatrix[feature];
