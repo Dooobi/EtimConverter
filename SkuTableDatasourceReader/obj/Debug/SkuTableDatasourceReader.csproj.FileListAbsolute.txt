@@ -1,0 +1,9 @@
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\bin\Debug\SkuTableDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\bin\Debug\SkuTableDatasourceReader.pdb
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\bin\Debug\HtmlAgilityPack.xml
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\obj\Debug\SkuTableDatasourceReader.csprojResolveAssemblyReference.cache
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\obj\Debug\SkuTableDatasourceReader.csproj.CoreCompileInputs.cache
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\obj\Debug\SkuTableDatasourceReader.dll
+C:\Users\Tobias\source\repos\EtimConverter\SkuTableDatasourceReader\obj\Debug\SkuTableDatasourceReader.pdb

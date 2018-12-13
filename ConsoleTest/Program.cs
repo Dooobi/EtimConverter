@@ -3,6 +3,7 @@ using BmecatDatasourceReader.Model;
 using CategoriesDatasourceReader;
 using DbAccessor;
 using EtimDatasourceReader;
+using SkuTableDatasourceReader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,8 +38,12 @@ namespace ConsoleTest
             VorzuegeDatasource vorzuegeDatasource = new VorzuegeDatasource(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\vorzuege_cache.xml");
             Console.WriteLine();
 
+            Console.WriteLine("Parsing SkuTables cache...");
+            SkuTableDatasource skuTableDatasource = new SkuTableDatasource(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\sku_table_cache.xml");
+            Console.WriteLine();
+
             Console.WriteLine("Parsing Bmecat file...");
-            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, GroupMode.URL);
+            BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, skuTableDatasource, GroupMode.URL);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");
@@ -47,6 +52,7 @@ namespace ConsoleTest
             Console.WriteLine();
 
             vorzuegeDatasource.PersistCache();
+            skuTableDatasource.PersistCache();
 
             GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
             //GambioDbAccessor dbAccessor = new GambioDbAccessor("keepsake.store.d0m.de", "DB3503426", "skey-U3503426", "Vista123456!");
@@ -160,7 +166,7 @@ namespace ConsoleTest
         public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
             // First (regular) csv
-            CsvBuilder csvBuilder = new CsvBuilder("\"", "|");
+            CsvBuilder csvBuilder = new CsvBuilder("", "|");
 
             csvBuilder.AddData(bmecatDatasource, false, true);
 

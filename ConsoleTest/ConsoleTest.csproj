@@ -70,6 +70,10 @@
       <Project>{4f42928e-86eb-4d3c-95d8-c2180b9df23b}</Project>
       <Name>EtimDatasourceReader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SkuTableDatasourceReader\SkuTableDatasourceReader.csproj">
+      <Project>{ea22e1da-efc2-4c1f-a54a-5f46011a7071}</Project>
+      <Name>SkuTableDatasourceReader</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VorzuegeDatasourceReader\VorzuegeDatasourceReader.csproj">
       <Project>{52251C7C-CB88-440E-AC12-02FE915BD4B4}</Project>
       <Name>VorzuegeDatasourceReader</Name>

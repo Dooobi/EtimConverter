@@ -46,6 +46,7 @@ namespace BmecatDatasourceReader.Model
         {
             string descriptionLong = "";
             string vorzuege = "";
+            string skuTable = "";
 
             if (DescriptionLong != null)
             {
@@ -55,8 +56,17 @@ namespace BmecatDatasourceReader.Model
             {
                 vorzuege = Vorzuege;
             }
+            if (SkuTable != null)
+            {
+                skuTable = SkuTable;
+            }
 
             StringBuilder bld = new StringBuilder();
+            bld.Append(SkuTable);
+            if (skuTable != "" && (descriptionLong != "" || vorzuege != ""))
+            {
+                bld.Append("<br/><br/>");
+            }
             bld.Append(descriptionLong);
             if (descriptionLong != "" && vorzuege != "")
             {
@@ -72,6 +82,9 @@ namespace BmecatDatasourceReader.Model
 
         // Vorzuege (from VorzuegeDatasource)
         public string Vorzuege { get; set; }
+
+        // SkuTable (from SkuTableDatasource)
+        public string SkuTable { get; set; }
 
         // Header
         public string Mode { get; set; }

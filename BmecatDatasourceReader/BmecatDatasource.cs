@@ -8,6 +8,7 @@ using CategoriesDatasourceReader;
 using VorzuegeDatasourceReader;
 using System.Security.Cryptography;
 using System.Text;
+using SkuTableDatasourceReader;
 
 namespace BmecatDatasourceReader
 {
@@ -489,15 +490,17 @@ namespace BmecatDatasourceReader
             public EtimDatasource EtimDatasource { get; set; }
             public CategoriesMappingDatasource CategoriesMappingDatasource { get; set; }
             public VorzuegeDatasource VorzuegeDatasource { get; set; }
+            public SkuTableDatasource SkuTableDatasource { get; set; }
 
             public BmecatDatasource BmecatDatasource { get; set; }
 
-            public BmecatParser(EtimDatasource etimDatasource, CategoriesMappingDatasource categoriesMappingDatasource, VorzuegeDatasource vorzuegeDatasource, GroupMode groupMode)
+            public BmecatParser(EtimDatasource etimDatasource, CategoriesMappingDatasource categoriesMappingDatasource, VorzuegeDatasource vorzuegeDatasource, SkuTableDatasource skuTableDatasource, GroupMode groupMode)
             {
                 BmecatDatasource = new BmecatDatasource(groupMode);
                 EtimDatasource = etimDatasource;
                 CategoriesMappingDatasource = categoriesMappingDatasource;
                 VorzuegeDatasource = vorzuegeDatasource;
+                SkuTableDatasource = skuTableDatasource;
             }
 
             public BmecatDatasource Parse(string bmecatFilepath)
@@ -582,6 +585,13 @@ namespace BmecatDatasourceReader
                     if (url != null)
                     {
                         product.Vorzuege = VorzuegeDatasource.GetVorzuegeByUrl(url);
+                    }
+
+                    // Add skuTable from SkuTableDatasource
+                    url = product.GetUrl();
+                    if (url != null)
+                    {
+                        product.SkuTable = SkuTableDatasource.GetSkuTableByUrl(url);
                     }
 
                     BmecatDatasource.Products.Add(product);
