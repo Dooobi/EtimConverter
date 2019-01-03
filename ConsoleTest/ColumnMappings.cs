@@ -102,6 +102,10 @@ namespace ConsoleTest
             }));
             columns.Add(new Column("p_image.3", (groupId, productGroup, product) =>
             {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return product.ManufacturerPid.Replace("/", "_") + "_EL.png";
+                }
                 if (product.Mimes.ContainsKey("image/jpeg")
                     && product.Mimes["image/jpeg"].Count > 3)
                 {
@@ -232,7 +236,7 @@ namespace ConsoleTest
                 return "9999.99";
             }));
             columns.Add(new Column("combi_price_type", (groupId, productGroup, product) => "fix"));
-            columns.Add(new Column("combi_image", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("combi_image", (groupId, productGroup, product) => product.ManufacturerPid.Replace("/", "_") + "_EL.png"));
             columns.Add(new Column("combi_vpe_id", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("combi_vpe_value", (groupId, productGroup, product) => "0"));
 
