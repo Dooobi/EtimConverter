@@ -63,7 +63,12 @@ namespace BmecatDatasourceReader.Model
 
             StringBuilder bld = new StringBuilder();
             bld.Append(SkuTable);
-            if (skuTable != "" && (descriptionLong != "" || vorzuege != ""))
+            if (skuTable != "")
+            {
+                bld.Append("<br/><br/>");
+            }
+            bld.Append("<b>Datenblatt und Homepage: <a href=\"" + GetUrl() + "\" target=\"_blank\">Hier klicken.</a></b>");
+            if (descriptionLong != "")
             {
                 bld.Append("<br/><br/>");
             }
