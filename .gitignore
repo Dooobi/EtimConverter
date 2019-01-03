@@ -9,3 +9,10 @@ DbAccessor/bin
 DbAccessor/obj
 EtimDatasourceReader/bin
 EtimDatasourceReader/obj
+SkuTableDatasourceReader/bin
+SkuTableDatasourceReader/obj
+VorzuegeDatasourceReader/bin
+VorzuegeDatasourceReader/obj
+CategoriesDatasourceReader/bin
+CategoriesDatasourceReader/obj
+packages

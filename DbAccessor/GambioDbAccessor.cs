@@ -3,6 +3,7 @@ using EtimDatasourceReader;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DbAccessor
 {
@@ -12,6 +13,8 @@ namespace DbAccessor
         private string dbName;
         private string user;
         private string password;
+
+        public string Logfile { get; set; }
 
         private MySqlConnection _connection = null;
 
@@ -38,6 +41,14 @@ namespace DbAccessor
             return _connection;
         }
 
+        private void LogCommand(MySqlCommand command)
+        {
+            if (!string.IsNullOrEmpty(Logfile))
+            {
+                File.AppendAllText(Logfile, command.CommandText + System.Environment.NewLine);
+            }
+        }
+
         public GambioProperty GetPropertyById(long propertyId)
         {
             MySqlConnection connection = GetConnection();
@@ -47,6 +58,7 @@ namespace DbAccessor
 
             GambioProperty property = null;
 
+            LogCommand(command);
             MySqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -88,7 +100,8 @@ namespace DbAccessor
             command.CommandText = "SELECT * FROM properties_description";
 
             Dictionary<int, GambioProperty> temp = new Dictionary<int, GambioProperty>();
-            
+
+            LogCommand(command);
             MySqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -139,7 +152,8 @@ namespace DbAccessor
             command.CommandText = "SELECT * FROM properties_values_description";
 
             Dictionary<int, GambioPropertyValue> temp = new Dictionary<int, GambioPropertyValue>();
-            
+
+            LogCommand(command);
             MySqlDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
@@ -219,13 +233,16 @@ namespace DbAccessor
 
             MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = "INSERT INTO properties (sort_order) VALUES (1)";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
 
             long insertedPropertyId = cmd.LastInsertedId;
 
             cmd.CommandText = "INSERT INTO properties_description (properties_id, language_id, properties_name, properties_admin_name) VALUES (" + insertedPropertyId + ", 1, '" + feature.Translations["en-GB"].Description + "', '')";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
             cmd.CommandText = "INSERT INTO properties_description (properties_id, language_id, properties_name, properties_admin_name) VALUES (" + insertedPropertyId + ", 2, '" + feature.Translations["de-DE"].Description + "', '')";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
             
             return GetPropertyById(insertedPropertyId);
@@ -237,13 +254,16 @@ namespace DbAccessor
             MySqlCommand cmd = connection.CreateCommand();
 
             cmd.CommandText = "INSERT INTO properties_values (properties_id, sort_order, value_model, value_price) VALUES (" + property.PropertyId + ", 1, '', 0)";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
 
             long insertedPropertyValueId = cmd.LastInsertedId;
 
             cmd.CommandText = "INSERT INTO properties_values_description (properties_values_id, language_id, values_name) VALUES (" + insertedPropertyValueId + ", 1, '" + value.ToPropertyValue() + "')";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
             cmd.CommandText = "INSERT INTO properties_values_description (properties_values_id, language_id, values_name) VALUES (" + insertedPropertyValueId + ", 2, '" + value.ToPropertyValue() + "')";
+            LogCommand(cmd);
             cmd.ExecuteNonQuery();
         }
     }

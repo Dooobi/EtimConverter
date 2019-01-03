@@ -55,7 +55,7 @@ namespace ConsoleTest
             skuTableDatasource.PersistCache();
 
             GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
-            //GambioDbAccessor dbAccessor = new GambioDbAccessor("keepsake.store.d0m.de", "DB3503426", "skey-U3503426", "Vista123456!");
+            dbAccessor.Logfile = "C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/sql/" + DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".sql";
 
             // Do diagnostics
             int groups = 0;
