@@ -4,7 +4,7 @@
     {
         public string MainCategory { get; set; }
         public string SubCategory { get; set; }
-
+        
         public string GetCategoryPath()
         {
             if (MainCategory != null && MainCategory.Length > 0)

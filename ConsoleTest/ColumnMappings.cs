@@ -23,7 +23,7 @@ namespace ConsoleTest
                 return "";
             }));
             //columns.Add(new Column("p_model", (groupId, productGroup, product) => product.ShortestKeyword));
-            columns.Add(new Column("p_stock", (groupId, productGroup, product) => "1"));
+            columns.Add(new Column("p_stock", (groupId, productGroup, product) => "9999"));
             columns.Add(new Column("p_sorting", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_startpage", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_startpage_sort", (groupId, productGroup, product) => "0"));
@@ -224,7 +224,7 @@ namespace ConsoleTest
             columns.Add(new Column("combi_sort_order", (groupId, productGroup, product) => ""));
             columns.Add(new Column("combi_model", (groupId, productGroup, product) => product.SupplierPid));
             columns.Add(new Column("combi_ean", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("combi_quantity", (groupId, productGroup, product) => "1"));
+            columns.Add(new Column("combi_quantity", (groupId, productGroup, product) => "9999"));
             columns.Add(new Column("combi_shipping_status_id", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("combi_weight", (groupId, productGroup, product) => ""));
             columns.Add(new Column("combi_price", (groupId, productGroup, product) =>

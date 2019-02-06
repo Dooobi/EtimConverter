@@ -42,13 +42,22 @@ namespace ConsoleTest
             SkuTableDatasource skuTableDatasource = new SkuTableDatasource(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\sku_table_cache.xml");
             Console.WriteLine();
 
-            Console.WriteLine("Parsing Bmecat file...");
+            Console.WriteLine("Parsing old Bmecat file...");
             BmecatParser bmecatParser = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, skuTableDatasource, GroupMode.URL);
             BmecatDatasource bmecatDatasource = bmecatParser.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\ENLITE Trade 2018 DE - 04072018[416].xml");
             Console.WriteLine(bmecatDatasource.Products.Count + " Products");
             Console.WriteLine(bmecatDatasource.AllUsedEtimFeatures.Count + " different EtimFeatures");
             Console.WriteLine(bmecatDatasource.AllUsedEtimGroups.Count + " different EtimGroups");
             Console.WriteLine(bmecatDatasource.AllUsedEtimClasses.Count + " different EtimClasses");
+            Console.WriteLine();
+
+            Console.WriteLine("Parsing new Bmecat file...");
+            BmecatParser bmecatParserNew = new BmecatParser(etimDatasource, categoriesMappingDatasource, vorzuegeDatasource, skuTableDatasource, GroupMode.URL);
+            BmecatDatasource bmecatDatasourceNew = bmecatParserNew.Parse(@"C:\Users\Tobias\Desktop\Onlineshop Klaus\wetransfer\Neuer Katalog\BMECat Enlite Trade Edition Two - Aurora Lighting.xml");
+            Console.WriteLine(bmecatDatasourceNew.Products.Count + " Products");
+            Console.WriteLine(bmecatDatasourceNew.AllUsedEtimFeatures.Count + " different EtimFeatures");
+            Console.WriteLine(bmecatDatasourceNew.AllUsedEtimGroups.Count + " different EtimGroups");
+            Console.WriteLine(bmecatDatasourceNew.AllUsedEtimClasses.Count + " different EtimClasses");
             Console.WriteLine();
 
             vorzuegeDatasource.PersistCache();
@@ -58,6 +67,13 @@ namespace ConsoleTest
             dbAccessor.Logfile = "C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/sql/" + DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".sql";
 
             // Do diagnostics
+            /* NEW BMECAT FILE */
+            // Get added/removed products
+            ExtractNewOldDifferences(bmecatDatasource, bmecatDatasourceNew);
+
+            return;
+            /* END NEW BMECAT FILE */
+
             int groups = 0;
             int products = 0;
             StringBuilder bld = new StringBuilder();
@@ -226,5 +242,94 @@ namespace ConsoleTest
 
             Console.WriteLine("Done.");
         }
+
+        public static void ExtractNewOldDifferences(BmecatDatasource bmecatDatasource, BmecatDatasource bmecatDatasourceNew)
+        {
+            List<Product> removedProducts = new List<Product>();
+            List<Product> addedProducts = new List<Product>();
+            List<Product> sameProducts = new List<Product>();
+
+            foreach (Product oldProduct in bmecatDatasource.Products)
+            {
+                bool isRemoved = true;
+
+                foreach (Product newProduct in bmecatDatasourceNew.Products)
+                {
+                    if (newProduct.SupplierPid == oldProduct.SupplierPid)
+                    {
+                        isRemoved = false;
+                        if (!sameProducts.Contains(oldProduct))
+                        {
+                            sameProducts.Add(oldProduct);
+                        }
+                        break;
+                    }
+                }
+
+                if (isRemoved)
+                {
+                    removedProducts.Add(oldProduct);
+                }
+            }
+
+            foreach (Product newProduct in bmecatDatasourceNew.Products)
+            {
+                bool isAdded = true;
+
+                foreach (Product oldProduct in bmecatDatasource.Products)
+                {
+                    if (newProduct.SupplierPid == oldProduct.SupplierPid)
+                    {
+                        isAdded = false;
+                        if (!sameProducts.Contains(oldProduct))
+                        {
+                            sameProducts.Add(oldProduct);
+                        }
+                        break;
+                    }
+                }
+
+                if (isAdded)
+                {
+                    addedProducts.Add(newProduct);
+                }
+            }
+
+            StringBuilder builder = new StringBuilder();
+            foreach (Product product in addedProducts)
+            {
+                builder.Append(product.SupplierPid).Append("\t").AppendLine(product.DescriptionShort);
+            }
+            string filename = "AddedProducts.tsv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + filename, builder.ToString());
+
+            builder = new StringBuilder();
+            foreach (Product product in removedProducts)
+            {
+                builder.Append(product.SupplierPid).Append("\t").AppendLine(product.DescriptionShort);
+            }
+            filename = "RemovedProducts.tsv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + filename, builder.ToString());
+
+            // Group added products by name
+            Dictionary<string, List<Product>> addedProductsByName = new Dictionary<string, List<Product>>();
+            foreach (Product addedProduct in addedProducts)
+            {
+                if (!addedProductsByName.ContainsKey(addedProduct.DescriptionShort))
+                {
+                    addedProductsByName[addedProduct.DescriptionShort] = new List<Product>();
+                }
+                addedProductsByName[addedProduct.DescriptionShort].Add(addedProduct);
+            }
+
+            builder = new StringBuilder();
+            foreach (KeyValuePair<string, List<Product>> kvp in addedProductsByName) 
+            {
+                builder.Append(kvp.Value[0].SupplierPid).Append("\t").AppendLine(kvp.Key);
+            }
+            filename = "Kategorien Neu.tsv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + filename, builder.ToString());
+        }
+
     }
 }

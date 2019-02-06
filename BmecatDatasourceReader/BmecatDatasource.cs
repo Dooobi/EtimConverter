@@ -578,8 +578,14 @@ namespace BmecatDatasourceReader
                     ParseProductLogisticDetails(product, xmlProduct);
 
                     // Add category from CategoriesMappingDatasource
-                    product.Category = CategoriesMappingDatasource.CategoriesMapping[product.DescriptionShort];
-
+                    if (CategoriesMappingDatasource.CategoriesMapping.ContainsKey(product.DescriptionShort))
+                    {
+                        product.Category = CategoriesMappingDatasource.CategoriesMapping[product.DescriptionShort];
+                    }
+                    else
+                    {
+                        product.Category = new Category();
+                    }
                     // Add vorzuege from VorzuegeDatasource
                     string url = product.GetUrl();
                     if (url != null)
@@ -843,11 +849,19 @@ namespace BmecatDatasourceReader
 
             public void ParseProductLogisticDetails(Product product, XmlNode xmlProduct)
             {
-                XmlNode xmlCustomsNumber = xmlProduct.SelectSingleNode("./PRODUCT_LOGISTIC_DETAILS/CUSTOMS_TARIFF_NUMBER/CUSTOMS_NUMBER");
-                XmlNode xmlCountryOfOrigin = xmlProduct.SelectSingleNode("./PRODUCT_LOGISTIC_DETAILS/COUNTRY_OF_ORIGIN");
+                try
+                {
+                    XmlNode xmlCustomsNumber = xmlProduct.SelectSingleNode("./PRODUCT_LOGISTIC_DETAILS/CUSTOMS_TARIFF_NUMBER/CUSTOMS_NUMBER");
+                    XmlNode xmlCountryOfOrigin = xmlProduct.SelectSingleNode("./PRODUCT_LOGISTIC_DETAILS/COUNTRY_OF_ORIGIN");
 
-                product.CustomsNumber = xmlCustomsNumber.InnerText;
-                product.CountryOfOrigin = xmlCountryOfOrigin.InnerText;
+                    product.CustomsNumber = xmlCustomsNumber.InnerText;
+                    product.CountryOfOrigin = xmlCountryOfOrigin.InnerText;
+                }
+                catch(Exception)
+                {
+                    product.CustomsNumber = "";
+                    product.CountryOfOrigin = "";
+                }
             }
         }
     }
