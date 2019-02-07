@@ -16,10 +16,10 @@ namespace ConsoleTest
             columns.Add(new Column("p_id", (groupId, productGroup, product) => Convert.ToString(groupId)));
             columns.Add(new Column("p_model", (groupId, productGroup, product) =>
             {
-                //if (productGroup.Value.Count <= 1)
-                //{
-                //    return product.SupplierPid;
-                //}
+                if (productGroup.Value.Count <= 1)
+                {
+                    return product.SupplierPid;
+                }
                 return "";
             }));
             //columns.Add(new Column("p_model", (groupId, productGroup, product) => product.ShortestKeyword));
@@ -35,14 +35,14 @@ namespace ConsoleTest
             //columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) =>
             {
-                //if (productGroup.Value.Count <= 1)
-                //{
-                //    if (product.Prices.ContainsKey("net_list"))
-                //    {
-                //        return product.Prices["net_list"].PriceAmount;
-                //    }
-                //    return "9999.99";
-                //}
+                if (productGroup.Value.Count <= 1)
+                {
+                    if (product.Prices.ContainsKey("net_list"))
+                    {
+                        return product.Prices["net_list"].PriceAmount;
+                    }
+                    return "9999.99";
+                }
                 return "";
             }));
             columns.Add(new Column("p_priceNoTax.1", (groupId, productGroup, product) => ""));
@@ -51,8 +51,8 @@ namespace ConsoleTest
             columns.Add(new Column("p_tax", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_status", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("p_weight", (groupId, productGroup, product) => "0"));
-            columns.Add(new Column("p_ean", (groupId, productGroup, product) => ""));
-            //columns.Add(new Column("p_ean", (groupId, productGroup, product) => product.InternationalPid));
+            //columns.Add(new Column("p_ean", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("p_ean", (groupId, productGroup, product) => product.InternationalPid));
             columns.Add(new Column("code_isbn", (groupId, productGroup, product) => ""));
             columns.Add(new Column("code_upc", (groupId, productGroup, product) => ""));
             columns.Add(new Column("code_mpn", (groupId, productGroup, product) => ""));
@@ -220,12 +220,42 @@ namespace ConsoleTest
             columns.Add(new Column("gm_sitemap_entry", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_qty_unit_id", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_type", (groupId, productGroup, product) => "1"));
-            columns.Add(new Column("products_properties_combis_id", (groupId, productGroup, product) => Convert.ToString(Settings.nextPropertiesId++)));
+
+            // Properties columns:
+            columns.Add(new Column("products_properties_combis_id", (groupId, productGroup, product) => 
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return Convert.ToString(Settings.nextPropertiesId++);
+            }));
             columns.Add(new Column("combi_sort_order", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("combi_model", (groupId, productGroup, product) => product.SupplierPid));
+            columns.Add(new Column("combi_model", (groupId, productGroup, product) => 
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return product.SupplierPid;
+            }));
             columns.Add(new Column("combi_ean", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("combi_quantity", (groupId, productGroup, product) => "9999"));
-            columns.Add(new Column("combi_shipping_status_id", (groupId, productGroup, product) => "1"));
+            columns.Add(new Column("combi_quantity", (groupId, productGroup, product) => 
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return "9999";
+            }));
+            columns.Add(new Column("combi_shipping_status_id", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return "1";
+            }));
             columns.Add(new Column("combi_weight", (groupId, productGroup, product) => ""));
             columns.Add(new Column("combi_price", (groupId, productGroup, product) =>
             {
@@ -235,10 +265,38 @@ namespace ConsoleTest
                 }
                 return "9999.99";
             }));
-            columns.Add(new Column("combi_price_type", (groupId, productGroup, product) => "fix"));
-            columns.Add(new Column("combi_image", (groupId, productGroup, product) => product.ManufacturerPid.Replace("/", "_") + "_EL.png"));
-            columns.Add(new Column("combi_vpe_id", (groupId, productGroup, product) => "0"));
-            columns.Add(new Column("combi_vpe_value", (groupId, productGroup, product) => "0"));
+            columns.Add(new Column("combi_price_type", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return "fix";
+            }));
+            columns.Add(new Column("combi_image", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return product.ManufacturerPid.Replace("/", "_") + "_EL.png";
+            }));
+            columns.Add(new Column("combi_vpe_id", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return "0";
+            }));
+            columns.Add(new Column("combi_vpe_value", (groupId, productGroup, product) =>
+            {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
+                return "0";
+            }));
 
             return columns;
         }
