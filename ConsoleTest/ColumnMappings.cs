@@ -73,7 +73,7 @@ namespace ConsoleTest
             columns.Add(new Column("gm_show_qty_info", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("gm_price_status", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("gm_min_order", (groupId, productGroup, product) => "1"));
-            columns.Add(new Column("gm_graduated_qty", (groupId, productGroup, product) => ""));
+            columns.Add(new Column("gm_graduated_qty", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("gm_options_template", (groupId, productGroup, product) => "default"));
             columns.Add(new Column("p_vpe", (groupId, productGroup, product) => "0"));
             columns.Add(new Column("p_vpe_status", (groupId, productGroup, product) => "0"));

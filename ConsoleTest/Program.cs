@@ -64,14 +64,13 @@ namespace ConsoleTest
             skuTableDatasource.PersistCache();
 
             GambioDbAccessor dbAccessor = new GambioDbAccessor("mysql04.manitu.net", "db22682", "u22682", "kycDfmzD33Nq");
-            dbAccessor.Logfile = "C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/sql/" + DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".sql";
+            dbAccessor.Logfile = "C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/sql/" + DateTime.Now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".sql";
 
             // Do diagnostics
             /* NEW BMECAT FILE */
             // Get added/removed products
             ExtractNewOldDifferences(bmecatDatasource, bmecatDatasourceNew);
-
-            return;
+            
             /* END NEW BMECAT FILE */
 
             int groups = 0;
@@ -117,7 +116,7 @@ namespace ConsoleTest
             }
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "KlausKategorienUndVorzüge.csv", bld.ToString());
 
-            Dictionary<EtimFeature, List<ProductFeature>> allDifferentFeaturesWithPossibleValues = bmecatDatasource.GetAllDifferingFeaturesWithPossibleValues(true);
+            Dictionary<EtimFeature, List<ProductFeature>> allDifferentFeaturesWithPossibleValues = bmecatDatasourceNew.GetAllDifferingFeaturesWithPossibleValues(true);
             Console.WriteLine(allDifferentFeaturesWithPossibleValues.Keys.Count);
             bld = new StringBuilder();
 
@@ -170,10 +169,10 @@ namespace ConsoleTest
             HandleDb(dbAccessor, allDifferentFeaturesWithPossibleValues);
 
             // Build xml file (debugging)
-            BuildDebugXml(bmecatDatasource);
+            BuildDebugXml(bmecatDatasourceNew);
 
             // Build csv file
-            BuildCsv(bmecatDatasource, dbAccessor);
+            BuildCsv(bmecatDatasourceNew, dbAccessor);
 
             Console.WriteLine("Finished.");
             Console.ReadLine();
@@ -190,7 +189,7 @@ namespace ConsoleTest
             
             DateTime now = DateTime.Now;
             string filename = "WithSingleProductGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
 
             // Second csv (only groups with multiple products)
             csvBuilder = new CsvBuilder("\"", "|");
@@ -200,7 +199,7 @@ namespace ConsoleTest
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
 
             filename = "OnlyMultipleProductsInGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
 
             // Third csv (easily viewable in google sheets)
             csvBuilder = new CsvBuilder("", "\t");
@@ -210,7 +209,7 @@ namespace ConsoleTest
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
             filename = "GoogleSheets--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/final/" + filename, csvData);
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
         }
 
         public static void BuildDebugXml(BmecatDatasource bmecatDatasource)
@@ -219,11 +218,11 @@ namespace ConsoleTest
 
             // File with unique feature combinations
             XElement root = xmlCreator.BuildXml(true);
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug_Uniques.xml", root.ToString());
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + "Debug_Uniques.xml", root.ToString());
 
             // File with duplicate feature combinations
             root = xmlCreator.BuildXml(false);
-            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/" + "Debug_Duplicates.xml", root.ToString());
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + "Debug_Duplicates.xml", root.ToString());
         }
 
         public static void HandleDb(GambioDbAccessor dbAccessor, Dictionary<EtimFeature, List<ProductFeature>> featuresWithPossibleValues)
