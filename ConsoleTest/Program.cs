@@ -181,9 +181,9 @@ namespace ConsoleTest
         public static void BuildCsv(BmecatDatasource bmecatDatasource, GambioDbAccessor gambioDbAccessor)
         {
             // First (regular) csv
-            CsvBuilder csvBuilder = new CsvBuilder("", "|");
+            CsvBuilder csvBuilder = new CsvBuilder("", "|", CsvBuilder.WITH_PROPERTIES);
 
-            csvBuilder.AddData(bmecatDatasource, false, true);
+            csvBuilder.AddData(bmecatDatasource, false, false, true);
 
             String csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             
@@ -192,19 +192,29 @@ namespace ConsoleTest
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
 
             // Second csv (only groups with multiple products)
-            csvBuilder = new CsvBuilder("\"", "|");
+            csvBuilder = new CsvBuilder("", "|", CsvBuilder.WITH_PROPERTIES);
 
-            csvBuilder.AddData(bmecatDatasource, true, true);
+            csvBuilder.AddData(bmecatDatasource, true, false, true);
 
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
 
             filename = "OnlyMultipleProductsInGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
             File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
 
-            // Third csv (easily viewable in google sheets)
-            csvBuilder = new CsvBuilder("", "\t");
+            // Third csv (only groups with one product)
+            csvBuilder = new CsvBuilder("", "|", CsvBuilder.WITHOUT_PROPERTIES);
 
-            csvBuilder.AddData(bmecatDatasource, false, true);
+            csvBuilder.AddData(bmecatDatasource, false, true, true);
+
+            csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
+
+            filename = "OnlySingleProductsInGroups--" + now.ToString("yyyy-MM-dd--HH-mm-ssZ") + ".csv";
+            File.WriteAllText("C:/Users/Tobias/Desktop/Onlineshop Klaus/imports/new/" + filename, csvData);
+
+            // Fourth csv (easily viewable in google sheets)
+            csvBuilder = new CsvBuilder("", "\t", CsvBuilder.WITH_PROPERTIES);
+
+            csvBuilder.AddData(bmecatDatasource, false, false, true);
 
             csvData = csvBuilder.Build(bmecatDatasource, gambioDbAccessor);
             

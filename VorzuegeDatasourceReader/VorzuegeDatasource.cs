@@ -51,7 +51,7 @@ namespace VorzuegeDatasourceReader
                 string vorzuege = LoadVorzuegeFromUrl(url);
                 VorzuegeByUrl[url] = vorzuege;
             }
-            return VorzuegeByUrl[url];
+            return VorzuegeByUrl[url].Replace("\r\n", "<br/>").Replace("\r", "<br/>").Replace("\n", "<br/>");
         }
 
         private string LoadVorzuegeFromUrl(string url)

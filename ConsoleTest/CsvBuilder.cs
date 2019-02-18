@@ -13,6 +13,9 @@ namespace ConsoleTest
 {
     public class CsvBuilder
     {
+        public const int WITH_PROPERTIES = 0;
+        public const int WITHOUT_PROPERTIES = 1;
+
         private List<Column> columns;
 
         private StringBuilder builder;
@@ -20,17 +23,24 @@ namespace ConsoleTest
         private string textSeparator;
         private string columnSeparator;
 
-        public CsvBuilder(string textSeparator, string columnSeparator)
+        private int type;
+
+        public CsvBuilder(string textSeparator, string columnSeparator, int type)
         {
             builder = new StringBuilder();
             columns = ColumnMappings.GetColumns();
 
             this.textSeparator = textSeparator;
             this.columnSeparator = columnSeparator;
+            this.type = type;
         }
 
-        public void AddData(BmecatDatasource bmecatDatasource, bool skipGroupsWithOnlyOneProduct, bool filterDuplicateFeatureCombinations)
+        public void AddData(BmecatDatasource bmecatDatasource, bool skipGroupsWithOnlyOneProduct, bool onlyGroupsWithOneProduct, bool filterDuplicateFeatureCombinations)
         {
+            if (onlyGroupsWithOneProduct && skipGroupsWithOnlyOneProduct)
+            {
+                throw new Exception("Das widerspricht sich.");
+            }
             List<EtimFeature> allDifferingFeatures = bmecatDatasource.GetAllDifferingFeatures();
             
             foreach (KeyValuePair<string, List<Product>> groupedProducts in bmecatDatasource.GetGroupedProducts(filterDuplicateFeatureCombinations))
@@ -40,7 +50,11 @@ namespace ConsoleTest
                     Console.WriteLine("Skipped group (only one product): " + groupedProducts.Key);
                     continue;
                 }
-
+                if (onlyGroupsWithOneProduct && groupedProducts.Value.Count != 1)
+                {
+                    Console.WriteLine("Skipped group (multiple products): " + groupedProducts.Key);
+                    continue;
+                }
                 Dictionary<EtimFeature, Dictionary<Product, ProductFeature>> featureMatrix = bmecatDatasource.GetFeatureMatrixForGroupedProducts(groupedProducts.Key, groupedProducts.Value, true);
                 List<EtimFeature> differingFeaturesForGroup = bmecatDatasource.GetDifferingFeaturesFromFeatureMatrix(featureMatrix);
 
@@ -49,6 +63,12 @@ namespace ConsoleTest
                     for (int i = 0; i < columns.Count; i++)
                     {
                         Column column = columns[i];
+
+                        if (column.Name == "products_properties_combis_id" && type == WITHOUT_PROPERTIES)
+                        {
+                            break;
+                        }
+
                         string value = column.DelegateGetValue(groupedProducts.Key, groupedProducts, product);
 
                         if (i != 0)
@@ -59,23 +79,26 @@ namespace ConsoleTest
                     }
 
                     // Append properties
-                    foreach (EtimFeature feature in allDifferingFeatures)
+                    if (type == WITH_PROPERTIES)
                     {
-                        string value = "";
-                        if (feature.Code == "SKU_FEATURE")
+                        foreach (EtimFeature feature in allDifferingFeatures)
                         {
-                            value = "<placeholder>";
-                        }
-                        if (differingFeaturesForGroup.Contains(feature))
-                        {
-                            Dictionary<Product, ProductFeature> productFeatures = featureMatrix[feature];
-                            ProductFeature productFeature = productFeatures[product];
-                            if (productFeature != null)
+                            string value = "";
+                            if (feature.Code == "SKU_FEATURE")
                             {
-                                value = productFeature.ToPropertyValue();
+                                value = "<placeholder>";
                             }
+                            if (differingFeaturesForGroup.Contains(feature))
+                            {
+                                Dictionary<Product, ProductFeature> productFeatures = featureMatrix[feature];
+                                ProductFeature productFeature = productFeatures[product];
+                                if (productFeature != null)
+                                {
+                                    value = productFeature.ToPropertyValue();
+                                }
+                            }
+                            builder.Append(columnSeparator).Append(textSeparator + value + textSeparator);
                         }
-                        builder.Append(columnSeparator).Append(textSeparator + value + textSeparator);
                     }
 
                     builder.AppendLine();
@@ -93,23 +116,32 @@ namespace ConsoleTest
             {
                 Column column = columns[i];
 
+                if (column.Name == "products_properties_combis_id" && type == WITHOUT_PROPERTIES)
+                {
+                    break;
+                }
+
                 if (i != 0)
                 {
                     headerBuilder.Append(columnSeparator);
                 }
                 headerBuilder.Append(textSeparator + column.Name + textSeparator);
             }
-            foreach (EtimFeature etimFeature in allDifferingFeatures)
+
+            if (type == WITH_PROPERTIES)
             {
-                string germanPropertyName = etimFeature.Translations["de-DE"].Description;
-
-                GambioProperty gambioProperty = gambioProperties.Find(property => property.GermanName == germanPropertyName);
-                if (gambioProperty == null)
+                foreach (EtimFeature etimFeature in allDifferingFeatures)
                 {
-                    Console.WriteLine("Für Feature '" + germanPropertyName + "' wurde keine Eigenschaft in der Gambio Datenbank gefunden.");
-                }
+                    string germanPropertyName = etimFeature.Translations["de-DE"].Description;
 
-                headerBuilder.Append(columnSeparator).Append(textSeparator).Append("Eigenschaft: ").Append(germanPropertyName).Append(".de [").Append(gambioProperty.PropertyId).Append("]").Append(textSeparator);
+                    GambioProperty gambioProperty = gambioProperties.Find(property => property.GermanName == germanPropertyName);
+                    if (gambioProperty == null)
+                    {
+                        Console.WriteLine("Für Feature '" + germanPropertyName + "' wurde keine Eigenschaft in der Gambio Datenbank gefunden.");
+                    }
+
+                    headerBuilder.Append(columnSeparator).Append(textSeparator).Append("Eigenschaft: ").Append(germanPropertyName).Append(".de [").Append(gambioProperty.PropertyId).Append("]").Append(textSeparator);
+                }
             }
 
             headerBuilder.AppendLine();

@@ -259,6 +259,10 @@ namespace ConsoleTest
             columns.Add(new Column("combi_weight", (groupId, productGroup, product) => ""));
             columns.Add(new Column("combi_price", (groupId, productGroup, product) =>
             {
+                if (productGroup.Value.Count <= 1)
+                {
+                    return "";
+                }
                 if (product.Prices.ContainsKey("net_list"))
                 {
                     return product.Prices["net_list"].PriceAmount;
