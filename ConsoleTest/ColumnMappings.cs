@@ -35,20 +35,30 @@ namespace ConsoleTest
             //columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) => ""));
             columns.Add(new Column("p_priceNoTax", (groupId, productGroup, product) =>
             {
-                if (productGroup.Value.Count <= 1)
+                if (productGroup.Value.Count > 1)
                 {
-                    if (product.Prices.ContainsKey("net_list"))
-                    {
-                        return product.Prices["net_list"].PriceAmount;
-                    }
-                    return "9999.99";
+                    return "0.00";
                 }
-                return "";
+                if (product.Prices.ContainsKey("net_list"))
+                {
+                    double priceAmount = Convert.ToDouble(product.Prices["net_list"].PriceAmount);
+                    return string.Format("{0:N2}%", priceAmount * 0.8);
+                }
+                return "9999.99";
             }));
-            columns.Add(new Column("p_priceNoTax.1", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_priceNoTax.2", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_priceNoTax.3", (groupId, productGroup, product) => ""));
-            columns.Add(new Column("p_tax", (groupId, productGroup, product) => "0"));
+            columns.Add(new Column("p_priceNoTax.1", (groupId, productGroup, product) =>
+            {
+                return "0.00";
+            }));
+            columns.Add(new Column("p_priceNoTax.2", (groupId, productGroup, product) =>
+            {
+                return "0.00";
+            }));
+            columns.Add(new Column("p_priceNoTax.3", (groupId, productGroup, product) =>
+            {
+                return "0.00";
+            }));
+            columns.Add(new Column("p_tax", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("p_status", (groupId, productGroup, product) => "1"));
             columns.Add(new Column("p_weight", (groupId, productGroup, product) => "0"));
             //columns.Add(new Column("p_ean", (groupId, productGroup, product) => ""));
@@ -265,7 +275,8 @@ namespace ConsoleTest
                 }
                 if (product.Prices.ContainsKey("net_list"))
                 {
-                    return product.Prices["net_list"].PriceAmount;
+                    double priceAmount = Convert.ToDouble(product.Prices["net_list"].PriceAmount);
+                    return string.Format("{0:N2}%", priceAmount * 0.8);
                 }
                 return "9999.99";
             }));
