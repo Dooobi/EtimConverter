@@ -1,6 +1,7 @@
 ﻿using BmecatDatasourceReader.Model;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,8 +42,9 @@ namespace ConsoleTest
                 }
                 if (product.Prices.ContainsKey("net_list"))
                 {
-                    double priceAmount = Convert.ToDouble(product.Prices["net_list"].PriceAmount);
-                    return string.Format("{0:N2}%", priceAmount * 0.8);
+                    double priceAmount = double.Parse(product.Prices["net_list"].PriceAmount, new CultureInfo("en-US")) * 0.8;
+                    priceAmount = Math.Truncate(priceAmount * 100) / 100;
+                    return string.Format(new CultureInfo("en-US"), "{0:0.00}", priceAmount);
                 }
                 return "9999.99";
             }));
@@ -275,8 +277,9 @@ namespace ConsoleTest
                 }
                 if (product.Prices.ContainsKey("net_list"))
                 {
-                    double priceAmount = Convert.ToDouble(product.Prices["net_list"].PriceAmount);
-                    return string.Format("{0:N2}%", priceAmount * 0.8);
+                    double priceAmount = double.Parse(product.Prices["net_list"].PriceAmount, new CultureInfo("en-US")) * 0.8;
+                    priceAmount = Math.Truncate(priceAmount * 100) / 100;
+                    return string.Format(new CultureInfo("en-US"), "{0:0.00}", priceAmount);
                 }
                 return "9999.99";
             }));
